@@ -198,4 +198,8 @@ public class TypesUtil {
         return StringUtils.stripAccents(string).trim();
     }
 
+    public static Long getUnixTime() {
+        return System.currentTimeMillis();
+    }
+
 }

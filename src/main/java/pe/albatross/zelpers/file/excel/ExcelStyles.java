@@ -15,7 +15,7 @@ public class ExcelStyles {
         fontTitle.setColor(IndexedColors.WHITE.getIndex());
 
         CellStyle cellHeader = workBook.createCellStyle();
-        cellHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        cellHeader.setFillForegroundColor(IndexedColors.BLACK.getIndex());
         cellHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
         cellHeader.setAlignment(CellStyle.ALIGN_CENTER);
         cellHeader.setFont(fontTitle);
