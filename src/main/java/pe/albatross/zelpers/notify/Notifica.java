@@ -1,8 +1,9 @@
 package pe.albatross.zelpers.notify;
 
+import java.io.Serializable;
 import javax.servlet.http.HttpSession;
 
-public class Notifica {
+public class Notifica implements Serializable {
 
     private String titulo;
     private String mensaje;

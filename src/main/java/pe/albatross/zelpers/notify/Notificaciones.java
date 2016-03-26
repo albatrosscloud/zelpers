@@ -1,11 +1,12 @@
 package pe.albatross.zelpers.notify;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-public class Notificaciones {
+public class Notificaciones implements Serializable {
 
     private List<Notifica> notificaciones;
     
