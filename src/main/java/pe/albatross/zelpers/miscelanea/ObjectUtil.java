@@ -231,6 +231,51 @@ public class ObjectUtil {
         return Math.abs(attr1.toString().compareTo(attr2.toString()));
     }
 
+    public static boolean equalsAttrs(Object obj1, Object obj2, List<String> atributos) {
+        if (atributos.size() == 0) {
+            throw new PhobosException("Lista de parametros vacio");
+        }
+
+        int i = 0;
+        for (String atributo : atributos) {
+            try {
+                i += equalAttr(getParentTree(obj1, atributo), getParentTree(obj2, atributo));
+            } catch (Exception ex) {
+                logger.debug(ex.getLocalizedMessage());
+            }
+        }
+
+        if (i > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static Integer equalAttr(Object attr1, Object attr2) {
+
+        if (attr1 == null && attr2 == null) {
+            return 0;
+        }
+        if (attr1 == null && attr2 != null) {
+            return 1;
+        }
+        if (attr1 != null && attr2 == null) {
+            return 1;
+        }
+
+        if (attr1 instanceof Date && attr2 instanceof Date) {
+            Date fecha1 = (Date) attr1;
+            Date fecha2 = (Date) attr2;
+            if (fecha1.equals(fecha2)) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return Math.abs(attr1.toString().compareTo(attr2.toString()));
+    }
+
     public static Object obtenerCampo(Object obj, String nombre) throws Exception {
         Field f = obj.getClass().getDeclaredField(nombre);
         f.setAccessible(true);
