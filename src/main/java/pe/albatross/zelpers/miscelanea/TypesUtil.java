@@ -202,4 +202,44 @@ public class TypesUtil {
         return System.currentTimeMillis();
     }
 
+    public static String getStringDateDayMonthFormat(Date date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM", new Locale("es", "ES"));
+            String retorno = sdf.format(date);
+            return retorno;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getStringDateDayMonthAltFormat(Date date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMMM", new Locale("es", "ES"));
+            String retorno = sdf.format(date);
+            return retorno;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getStringDateLongFormat(Date date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMMM 'del' yyyy", new Locale("es", "ES"));
+            String retorno = sdf.format(date);
+            return retorno;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getStringDateTimeLongFormat(Date date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM 'del' yyyy 'a las' hh:mm a", new Locale("es", "ES"));
+            String retorno = sdf.format(date);
+            return retorno;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
