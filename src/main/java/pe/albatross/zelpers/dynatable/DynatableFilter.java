@@ -11,6 +11,7 @@ public class DynatableFilter {
     private Integer perPage;
     private Integer offset;
     private Map queries;
+    private String orden;
 
     private List<String> fields;
     private List<String> complexFields;
@@ -161,6 +162,14 @@ public class DynatableFilter {
 
     public void setComplexFields(List<String> complexFields) {
         this.complexFields = complexFields;
+    }
+
+    public String getOrden() {
+        return orden;
+    }
+
+    public void setOrden(String orden) {
+        this.orden = orden;
     }
 
 }
