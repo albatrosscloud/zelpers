@@ -1,5 +1,9 @@
 package pe.albatross.zelpers.miscelanea;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -111,4 +115,31 @@ public class ExceptionHandler {
         logger.error(ex.getMessage());
         ex.printStackTrace();
     }
+
+    public static String exceptionOnStringMedium(Exception e) {
+        String error = "";
+        try {
+            /*
+            StringWriter errors = new StringWriter();
+            e.printStackTrace(new PrintWriter(errors));
+            error = e.toString();
+            if (error != null && !error.isEmpty()) {
+                if (error.length() > 200) {
+                    error = error.substring(0, 200);
+                }
+            }
+             */
+            String[] ss = ExceptionUtils.getRootCauseStackTrace(e);
+            error = StringUtils.join(ss, ", ");
+            if (error != null && !error.isEmpty()) {
+                if (error.length() > 500) {
+                    error = error.substring(0, 500);
+                }
+            }
+        } catch (Exception ex) {
+            logger.debug("Error exceptionOnStringMedium", ex);
+        }
+        return error;
+    }
+
 }
