@@ -27,7 +27,6 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 
-
 @SuppressWarnings("unchecked")
 public abstract class AbstractDAO<T extends Serializable> implements Crud<T> {
 
@@ -36,6 +35,10 @@ public abstract class AbstractDAO<T extends Serializable> implements Crud<T> {
 
     @Autowired
     private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     protected void setClazz(final Class<T> clazzToSet) {
         clazz = Preconditions.checkNotNull(clazzToSet);
