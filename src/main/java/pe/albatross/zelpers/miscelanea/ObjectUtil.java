@@ -223,11 +223,16 @@ public class ObjectUtil {
         }
 
         if (attr1.getClass() != attr2.getClass()) {
-            return 1;
+            if (!attr1.getClass().getSimpleName().equals(attr2.getClass().getSimpleName())) {
+                return 1;
+            }
         }
 
         if (attr1 instanceof BigDecimal) {
-            return (((BigDecimal) attr1).compareTo((BigDecimal) attr2) == 0) ? 0 : 1;
+            BigDecimal d1 = (BigDecimal) attr1;
+            BigDecimal d2 = (BigDecimal) attr2;
+            int iguales = (d1.compareTo(d2) == 0) ? 0 : 1;
+            return iguales;
         }
         if (attr1 instanceof Double) {
             return (((Double) attr1).compareTo((Double) attr2) == 0) ? 0 : 1;
@@ -236,10 +241,10 @@ public class ObjectUtil {
             return (((Float) attr1).compareTo((Float) attr2) == 0) ? 0 : 1;
         }
 
-        if (attr1 instanceof Date && attr2 instanceof Date) {
+        if (attr1.getClass().getSimpleName().equals("Date")) {
             Date fecha1 = (Date) attr1;
             Date fecha2 = (Date) attr2;
-            return fecha1.equals(fecha2) ? 0 : 1;
+            return fecha1.getTime() == fecha2.getTime() ? 0 : 1;
         }
 
         return Math.abs(attr1.toString().compareTo(attr2.toString()));
@@ -278,15 +283,31 @@ public class ObjectUtil {
             return 1;
         }
 
-        if (attr1 instanceof Date && attr2 instanceof Date) {
-            Date fecha1 = (Date) attr1;
-            Date fecha2 = (Date) attr2;
-            if (fecha1.equals(fecha2)) {
-                return 0;
-            } else {
+        if (attr1.getClass() != attr2.getClass()) {
+            if (!attr1.getClass().getSimpleName().equals(attr2.getClass().getSimpleName())) {
                 return 1;
             }
         }
+
+        if (attr1 instanceof BigDecimal) {
+            BigDecimal d1 = (BigDecimal) attr1;
+            BigDecimal d2 = (BigDecimal) attr2;
+            int iguales = (d1.compareTo(d2) == 0) ? 0 : 1;
+            return iguales;
+        }
+        if (attr1 instanceof Double) {
+            return (((Double) attr1).compareTo((Double) attr2) == 0) ? 0 : 1;
+        }
+        if (attr1 instanceof Float) {
+            return (((Float) attr1).compareTo((Float) attr2) == 0) ? 0 : 1;
+        }
+
+        if (attr1.getClass().getSimpleName().equals("Date")) {
+            Date fecha1 = (Date) attr1;
+            Date fecha2 = (Date) attr2;
+            return fecha1.getTime() == fecha2.getTime() ? 0 : 1;
+        }
+
         return Math.abs(attr1.toString().compareTo(attr2.toString()));
     }
 
