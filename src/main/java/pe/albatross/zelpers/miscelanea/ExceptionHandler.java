@@ -22,7 +22,7 @@ public class ExceptionHandler {
         String methodName = Thread.currentThread().getStackTrace()[level].getMethodName();
         int lineNumber = Thread.currentThread().getStackTrace()[level].getLineNumber();
 
-        ex.printStackTrace();
+        //ex.printStackTrace();
         logger.info(ex.getMessage());
         logger.info(className + "." + methodName + "():" + lineNumber);
     }
