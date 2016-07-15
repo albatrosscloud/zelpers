@@ -1,5 +1,6 @@
 package pe.albatross.zelpers.dynatable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public class DynatableFilter {
         filtersInFixed.put(column, value);
     }
 
+    @JsonIgnore
     public String getSearchValue() {
         String search = "";
         if (queries != null) {
