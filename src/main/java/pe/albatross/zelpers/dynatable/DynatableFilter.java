@@ -23,12 +23,14 @@ public class DynatableFilter {
     private Integer filtered;
     private Map filtersFixed;
     private Map filtersInFixed;
+    private Map sorts;
 
     public DynatableFilter() {
         total = 0;
         filtered = 0;
         filtersFixed = new HashMap();
         filtersInFixed = new HashMap();
+        sorts = new HashMap();
         complexFields = new ArrayList();
     }
 
@@ -172,6 +174,14 @@ public class DynatableFilter {
 
     public void setOrden(String orden) {
         this.orden = orden;
+    }
+
+    public Map getSorts() {
+        return sorts;
+    }
+
+    public void setSorts(Map sorts) {
+        this.sorts = sorts;
     }
 
 }
