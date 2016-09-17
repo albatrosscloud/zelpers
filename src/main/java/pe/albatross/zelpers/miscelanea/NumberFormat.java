@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public class NumberFormat {
 
-    public String dec(Object value) {
+    public static String dec(Object value) {
         if (value == null) {
             return null;
         }
@@ -15,7 +15,7 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
-    public String precio(Object value) {
+    public static String precio(Object value) {
         if (value == null) {
             return null;
         }
@@ -23,8 +23,22 @@ public class NumberFormat {
         DecimalFormat myFormatter = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
     }
+    
+     public static String precioMini(Object value, int ancho) {
+        if (value == null) {
+            return null;
+        }
 
-    public String medida(Object value) {
+        StringBuilder frmt = new StringBuilder();
+        for (int i = 0; i < ancho; i++) {
+            frmt.append('0');
+        }
+
+        DecimalFormat myFormatter = new DecimalFormat("###,##0." + frmt, new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
+    public static String medida(Object value) {
         if (value == null) {
             return null;
         }
@@ -33,7 +47,7 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
-    public String codigo(Object value, int ancho) {
+    public static String codigo(Object value, int ancho) {
         if (value == null) {
             return null;
         }

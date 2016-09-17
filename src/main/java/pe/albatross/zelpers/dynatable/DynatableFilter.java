@@ -24,6 +24,7 @@ public class DynatableFilter {
     private Map filtersFixed;
     private Map filtersInFixed;
     private Map sorts;
+    private String searchValue;
 
     public DynatableFilter() {
         total = 0;
@@ -62,6 +63,10 @@ public class DynatableFilter {
             search = queries.get("search").toString();
         }
         return search;
+    }
+
+    public void setSearchValue(String searchValue) {
+        this.searchValue = searchValue;
     }
 
     public Integer getPage() {
