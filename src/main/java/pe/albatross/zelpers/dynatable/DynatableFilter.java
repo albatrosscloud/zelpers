@@ -1,5 +1,6 @@
 package pe.albatross.zelpers.dynatable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +23,15 @@ public class DynatableFilter {
     private Integer filtered;
     private Map filtersFixed;
     private Map filtersInFixed;
+    private Map sorts;
+    private String searchValue;
 
     public DynatableFilter() {
         total = 0;
         filtered = 0;
         filtersFixed = new HashMap();
         filtersInFixed = new HashMap();
+        sorts = new HashMap();
         complexFields = new ArrayList();
     }
 
@@ -49,6 +53,7 @@ public class DynatableFilter {
         filtersInFixed.put(column, value);
     }
 
+    @JsonIgnore
     public String getSearchValue() {
         String search = "";
         if (queries != null) {
@@ -58,6 +63,10 @@ public class DynatableFilter {
             search = queries.get("search").toString();
         }
         return search;
+    }
+
+    public void setSearchValue(String searchValue) {
+        this.searchValue = searchValue;
     }
 
     public Integer getPage() {
@@ -170,6 +179,14 @@ public class DynatableFilter {
 
     public void setOrden(String orden) {
         this.orden = orden;
+    }
+
+    public Map getSorts() {
+        return sorts;
+    }
+
+    public void setSorts(Map sorts) {
+        this.sorts = sorts;
     }
 
 }

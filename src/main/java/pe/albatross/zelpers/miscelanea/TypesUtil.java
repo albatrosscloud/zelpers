@@ -242,4 +242,14 @@ public class TypesUtil {
         }
     }
 
+    public static String getStringDateDayMonthNsFormat(Date date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy", new Locale("es", "ES"));
+            String retorno = sdf.format(date);
+            return retorno;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

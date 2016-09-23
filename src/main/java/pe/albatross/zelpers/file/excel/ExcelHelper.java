@@ -80,6 +80,7 @@ public class ExcelHelper {
         if (valor == null) {
             cell.setCellType(Cell.CELL_TYPE_BLANK);
         } else {
+            cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(valor);
         }
     }
@@ -131,32 +132,27 @@ public class ExcelHelper {
 
     public void replaceStyle(int nroRow, int nroCell, CellStyle style) {
         Cell cell = findCell(nroRow, nroCell);
-
-        CellStyle cellStyle = getCellStyle(nroRow, nroCell);
-        cellStyle.setBorderBottom(style.getBorderBottom());
-        cellStyle.setBorderLeft(style.getBorderLeft());
-        cellStyle.setBorderRight(style.getBorderRight());
-        cellStyle.setBorderTop(style.getBorderTop());
-
-        cell.setCellStyle(cellStyle);
+        cell.setCellStyle(style);
     }
 
     public void replaceVal(int nroRow, int nroCell, Date valor) {
-        replaceVal(nroRow, nroCell, valor, "dd/mm/yyyy");
+        Cell cell = findCell(nroRow, nroCell);
+        cell.setCellValue(valor);
     }
 
     public void replaceVal(int nroRow, int nroCell, Date valor, String formato) {
         Cell cell = findCell(nroRow, nroCell);
-        if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
-            return;
-        } else {
-            cell.setCellValue(valor);
-        }
+        replaceVal(nroRow, nroCell, valor);
 
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         DataFormat df = workBook.createDataFormat();
         cellStyle.setDataFormat(df.getFormat(formato));
+        cell.setCellStyle(cellStyle);
+    }
+
+    public void replaceVal(int nroRow, int nroCell, Date valor, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        replaceVal(nroRow, nroCell, valor);
         cell.setCellStyle(cellStyle);
     }
 
@@ -183,8 +179,25 @@ public class ExcelHelper {
         if (valor == null) {
             cell.setCellType(Cell.CELL_TYPE_BLANK);
         } else {
+            cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(valor);
         }
+    }
+
+    public void replaceVal(int nroRow, int nroCell, String valor, String formato) {
+        Cell cell = findCell(nroRow, nroCell);
+        replaceVal(nroRow, nroCell, valor);
+
+        CellStyle cellStyle = getCellStyle(nroRow, nroCell);
+        DataFormat df = workBook.createDataFormat();
+        cellStyle.setDataFormat(df.getFormat(formato));
+        cell.setCellStyle(cellStyle);
+    }
+
+    public void replaceVal(int nroRow, int nroCell, String valor, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        replaceVal(nroRow, nroCell, valor);
+        cell.setCellStyle(cellStyle);
     }
 
     public void replaceVal(int nroRow, int nroCell, Double valor) {
@@ -208,6 +221,14 @@ public class ExcelHelper {
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         DataFormat df = workBook.createDataFormat();
         cellStyle.setDataFormat(df.getFormat(formato));
+        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        cell.setCellStyle(cellStyle);
+    }
+
+    public void replaceVal(int nroRow, int nroCell, BigDecimal valor, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        replaceVal(nroRow, nroCell, valor);
+        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
         cell.setCellStyle(cellStyle);
     }
 
