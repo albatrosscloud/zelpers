@@ -23,8 +23,8 @@ public class NumberFormat {
         DecimalFormat myFormatter = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
     }
-    
-     public static String precioMini(Object value, int ancho) {
+
+    public static String precioMini(Object value, int ancho) {
         if (value == null) {
             return null;
         }
