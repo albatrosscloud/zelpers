@@ -23,8 +23,26 @@ public class NumberFormat {
         DecimalFormat myFormatter = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
     }
-    
-     public static String precioMini(Object value, int ancho) {
+
+    public static String notaDecimal(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        DecimalFormat myFormatter = new DecimalFormat("00.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
+    public static String nota(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        DecimalFormat myFormatter = new DecimalFormat("00", new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
+    public static String precioMini(Object value, int ancho) {
         if (value == null) {
             return null;
         }

@@ -2,7 +2,7 @@ package pe.albatross.zelpers.dynatable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +29,9 @@ public class DynatableFilter {
     public DynatableFilter() {
         total = 0;
         filtered = 0;
-        filtersFixed = new HashMap();
-        filtersInFixed = new HashMap();
-        sorts = new HashMap();
+        filtersFixed = new LinkedHashMap();
+        filtersInFixed = new LinkedHashMap();
+        sorts = new LinkedHashMap();
         complexFields = new ArrayList();
     }
 
