@@ -66,15 +66,29 @@ public class NumberFormat {
     }
 
     public static String codigo(Object value, int ancho) {
+        return codigo(value, ancho, '0');
+    }
+
+    public static String codigo(Object value, int ancho, char relleno) {
         if (value == null) {
             return null;
         }
-        StringBuilder cod = new StringBuilder();
-        for (int i = 0; i < ancho; i++) {
-            cod.append('0');
+
+        if (relleno == '0') {
+            StringBuilder cod = new StringBuilder();
+            for (int i = 0; i < ancho; i++) {
+                cod.append(relleno);
+            }
+            DecimalFormat myFormatter = new DecimalFormat(cod.toString(), new DecimalFormatSymbols(new Locale("pe", "PE")));
+            return myFormatter.format(value);
+
+        } else {
+            String val = String.valueOf(value);
+            while (val.length() < ancho) {
+                val = relleno + val;
+            }
+            return val;
         }
-        DecimalFormat myFormatter = new DecimalFormat(cod.toString(), new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
 
     }
 
