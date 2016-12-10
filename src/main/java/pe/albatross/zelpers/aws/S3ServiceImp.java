@@ -68,4 +68,14 @@ public class S3ServiceImp implements S3Service {
 
         return null;
     }
+
+    @Override
+    public boolean doesExist(String bucket, String directory, String fileName) {
+
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+
+        return s3client.doesObjectExist(bucket, directory + fileName);
+
+    }
+
 }

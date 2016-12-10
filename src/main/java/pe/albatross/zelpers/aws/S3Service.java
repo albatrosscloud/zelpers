@@ -9,4 +9,6 @@ public interface S3Service {
     void deleteFile(String buket, String directory, String fileName);
 
     InputStream getFile(String bucket, String directory, String fileName);
+
+    boolean doesExist(String bucket, String directory, String fileName);
 }
