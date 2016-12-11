@@ -9,7 +9,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -23,9 +22,8 @@ public class S3ServiceImp implements S3Service {
     @Autowired
     BasicAWSCredentials awsCredentials;
 
-    @Async
     @Override
-    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
 
         File file = new File(localDirectory + fileName);
 
@@ -38,6 +36,13 @@ public class S3ServiceImp implements S3Service {
         }
 
         s3Client.putObject(objectRequest);
+
+    }
+
+    @Async
+    @Override
+    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico);
     }
 
     @Async
@@ -52,21 +57,9 @@ public class S3ServiceImp implements S3Service {
     public InputStream getFile(String bucket, String directory, String fileName) {
 
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        S3Object object = s3client.getObject(new GetObjectRequest(bucket, directory + fileName));
 
-        try {
-            S3Object object = s3client.getObject(
-                    new GetObjectRequest(bucket, directory + fileName));
-            InputStream objectData = object.getObjectContent();
-
-            objectData.close();
-
-            return objectData;
-
-        } catch (IOException ex) {
-            System.out.println("ERROR AVATAR DOWNLOAD");
-        }
-
-        return null;
+        return object.getObjectContent();
     }
 
     @Override
