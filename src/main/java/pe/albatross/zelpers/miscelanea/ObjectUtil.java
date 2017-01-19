@@ -175,18 +175,28 @@ public class ObjectUtil {
     }
 
     public static void printAttr(Object obj) {
+        if (obj == null) {
+            System.out.println("Object no existe para imprimir sus atributos");
+            return;
+        }
+
+        System.out.println("/======================================================================\\");
         Method[] methods = obj.getClass().getMethods();
+        System.out.println("| class: " + obj.getClass().getName());
+        System.out.println("|======================================================================|");
+
         for (Method method : methods) {
             if (method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0) {
                 try {
                     Object returnObject = method.invoke(obj);
-                    logger.debug(method.getName() + " - " + returnObject);
+                    System.out.println("|\t" + method.getName() + " - " + returnObject);
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                 }
             }
 
         }
+        System.out.println("\\======================================================================/");
     }
 
     public static boolean verificarIgualdad(Object obj1, Object obj2, List<String> atributos) {
@@ -263,12 +273,7 @@ public class ObjectUtil {
                 logger.debug(ex.getLocalizedMessage());
             }
         }
-
-        if (i > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return i <= 0;
     }
 
     public static Integer equalAttr(Object attr1, Object attr2) {
