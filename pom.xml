@@ -4,7 +4,7 @@
     
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
     
     <packaging>jar</packaging>
     
@@ -101,6 +101,7 @@
     
     
     <build>
+        <finalName>zelpers</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
