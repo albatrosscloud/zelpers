@@ -33,6 +33,24 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
+    public static String notaDecimal4Decimals(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        DecimalFormat myFormatter = new DecimalFormat("00.0000", new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
+    public static String notaDecimal10Decimals(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        DecimalFormat myFormatter = new DecimalFormat("00.0000000000", new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
     public static String nota(Object value) {
         if (value == null) {
             return null;
