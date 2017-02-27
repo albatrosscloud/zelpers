@@ -11,7 +11,7 @@ public class DynatableFilter {
     private Integer page;
     private Integer perPage;
     private Integer offset;
-    private Map queries;
+    private Map<String, Object> queries;
     private String orden;
 
     private List<String> fields;

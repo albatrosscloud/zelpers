@@ -4,7 +4,7 @@
     
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
     
     <packaging>jar</packaging>
     
@@ -90,8 +90,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.9.20.1</version>
-            <type>jar</type>
+            <version>1.11.60</version>
         </dependency>
     </dependencies>
 
@@ -102,6 +101,7 @@
     
     
     <build>
+        <finalName>zelpers</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
