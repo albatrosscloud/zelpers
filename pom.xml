@@ -4,7 +4,8 @@
     
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>2.0</version>
+    <version>2.0.1</version>
+    
     
     <packaging>jar</packaging>
     
@@ -84,13 +85,7 @@
             <version>3.15</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.10</version>
-        </dependency>
-
-      
+       
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
@@ -116,6 +111,20 @@
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>1.11.66</version>
         </dependency>
+        
+        
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.11</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.itextpdf.tool</groupId>
+            <artifactId>xmlworker</artifactId>
+            <version>5.5.11</version>
+        </dependency>
+        
     </dependencies>
 
 
@@ -125,6 +134,7 @@
     
     
     <build>
+        <finalName>zelpers</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

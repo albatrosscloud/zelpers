@@ -1,5 +1,6 @@
 package pe.albatross.zelpers.dao;
 
+@Deprecated
 public class DaoOrderBy {
 
     private Integer tipoOrden;

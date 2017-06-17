@@ -1,5 +1,6 @@
 package pe.albatross.zelpers.dao;
 
+@Deprecated
 public class DaoParent {
 
     private Integer tipoJoin;

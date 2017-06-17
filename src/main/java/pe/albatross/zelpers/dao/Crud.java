@@ -3,6 +3,7 @@ package pe.albatross.zelpers.dao;
 import java.io.Serializable;
 import java.util.List;
 
+@Deprecated
 public interface Crud<T extends Serializable> {
 
     List<T> all();

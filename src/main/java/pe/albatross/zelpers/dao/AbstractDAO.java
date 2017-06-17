@@ -27,6 +27,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 
+@Deprecated
 @SuppressWarnings("unchecked")
 public abstract class AbstractDAO<T extends Serializable> implements Crud<T> {
 

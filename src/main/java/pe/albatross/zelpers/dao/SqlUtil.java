@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.StringUtils;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
+@Deprecated
 public class SqlUtil {
 
     public final static Integer INNER_JOIN = 1;

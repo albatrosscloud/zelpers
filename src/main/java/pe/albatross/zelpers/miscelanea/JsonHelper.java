@@ -1,8 +1,11 @@
 package pe.albatross.zelpers.miscelanea;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -36,7 +39,6 @@ public class JsonHelper {
 
         StringBuilder sbMetodo = new StringBuilder("get");
         sbMetodo.append(WordUtils.capitalize(atributo));
-
 
         for (int i = 0; i < metodos.length; i++) {
             Method metodoTmp = metodos[i];
@@ -96,7 +98,7 @@ public class JsonHelper {
 
                 try {
                     Object rpta = metodo.invoke(obj);
-                    if(rpta!=null){
+                    if (rpta != null) {
                         json.put(tmp.toString(), rpta.toString());
                     }
                 } catch (Exception ex) {
@@ -127,7 +129,7 @@ public class JsonHelper {
 
                 try {
                     Object rpta = metodo.invoke(obj);
-                    if(rpta!=null){
+                    if (rpta != null) {
                         json.put(tmp.toString(), rpta.toString());
                     }
                 } catch (Exception ex) {
@@ -233,6 +235,33 @@ public class JsonHelper {
         if (padreLista.length > 1) {
             String abuelos = padres.substring(padreLista[0].length() + 1);
             loadPrefijoId(tmp.toString(), json, objPadre, abuelos);
+        }
+
+    }
+
+    public static String toJson(Object object) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            return mapper.writeValueAsString(object);
+
+        } catch (Exception e) {
+            logger.debug("Error al Serializar/Marshall");
+            return "";
+        }
+
+    }
+
+    public static Object fromJson(String json, Class clazz) {
+        try {
+            
+            ObjectMapper mapper = new ObjectMapper();
+            Object object = (Object) mapper.readValue(json, clazz);
+            return object;
+            
+        } catch (IOException ex) {
+            logger.debug("Error al Deserializar/Unmarshall");
+            return null;
         }
 
     }

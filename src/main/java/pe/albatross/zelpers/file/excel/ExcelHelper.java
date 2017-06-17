@@ -140,6 +140,16 @@ public class ExcelHelper {
         cell.setCellValue(valor);
     }
 
+    public void replaceVal(int nroRow, int nroCell, Date valor, String formato, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        replaceVal(nroRow, nroCell, valor);
+
+        cell.setCellStyle(cellStyle);
+        DataFormat df = workBook.createDataFormat();
+        cellStyle.setDataFormat(df.getFormat(formato));
+        cell.setCellStyle(cellStyle);
+    }
+
     public void replaceVal(int nroRow, int nroCell, Date valor, String formato) {
         Cell cell = findCell(nroRow, nroCell);
         replaceVal(nroRow, nroCell, valor);
