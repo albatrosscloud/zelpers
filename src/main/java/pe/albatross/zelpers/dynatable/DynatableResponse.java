@@ -1,5 +1,6 @@
 package pe.albatross.zelpers.dynatable;
 
+@Deprecated
 public class DynatableResponse {
 
     private Integer total;
