@@ -4,10 +4,17 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.util.DigestUtils;
 
 public class TypesUtil {
@@ -135,23 +142,28 @@ public class TypesUtil {
 
     }
 
-    public static String getStringDate(Date date, String dateFormat) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-            String retorno = sdf.format(date);
-            return retorno;
-        } catch (Exception e) {
-            return null;
-        }
+    public static String getStringDate(Date fecha, String formato) {
+        DateTime hoy = new DateTime(fecha);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
+        return fmt.print(hoy);
+    }
+
+    public String getStringDate(Date fecha, String formato, String language) {
+        DateTime hoy = new DateTime(fecha);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
+        return fmt.withLocale(new Locale(language)).print(hoy);
+    }
+
+    public String getStringDate(Date fecha, String formato, String language, String country) {
+        DateTime hoy = new DateTime(fecha);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
+        return fmt.withLocale(new Locale(language, country)).print(hoy);
     }
 
     public static String getCurrentStringDate(String dateFormat) {
-
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         Date date = new Date();
-
         return sdf.format(date);
-
     }
 
     public static String getStringDate(Timestamp fecha, String format) {
@@ -250,6 +262,29 @@ public class TypesUtil {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Map convertListToMap(String attr, List items) {
+        Map map = new LinkedHashMap();
+        for (Object item : items) {
+            Object val = ObjectUtil.getParentTree(item, attr);
+            map.put(val, item);
+        }
+        return map;
+    }
+
+    public static Map convertListToMapList(String attr, List items) {
+        Map map = new LinkedHashMap();
+        for (Object item : items) {
+            Object val = ObjectUtil.getParentTree(item, attr);
+            List lista = (List) map.get(val);
+            if (lista == null) {
+                lista = new ArrayList();
+                map.put(val, lista);
+            }
+            lista.add(item);
+        }
+        return map;
     }
 
 }
