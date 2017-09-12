@@ -148,13 +148,13 @@ public class TypesUtil {
         return fmt.print(hoy);
     }
 
-    public String getStringDate(Date fecha, String formato, String language) {
+    public static String getStringDate(Date fecha, String formato, String language) {
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language)).print(hoy);
     }
 
-    public String getStringDate(Date fecha, String formato, String language, String country) {
+    public static String getStringDate(Date fecha, String formato, String language, String country) {
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language, country)).print(hoy);
