@@ -320,4 +320,13 @@ public class TypesUtil {
         return map;
     }
 
+    public static List extractListByAttr(String attr, List items) {
+        List list = new ArrayList();
+        items.forEach((item) -> {
+            Object obj = ObjectUtil.getParentTree(item, attr);
+            list.add(obj);
+        });
+        return list;
+    }
+
 }
