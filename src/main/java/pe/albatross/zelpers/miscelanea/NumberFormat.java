@@ -51,6 +51,17 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
+    public static String notaDecimalXDecimals(Object value, int decimales) {
+        if (value == null) {
+            return null;
+        }
+
+        String cod = NumberFormat.codigo(0, decimales);
+
+        DecimalFormat myFormatter = new DecimalFormat("00." + cod, new DecimalFormatSymbols(new Locale("pe", "PE")));
+        return myFormatter.format(value);
+    }
+
     public static String nota(Object value) {
         if (value == null) {
             return null;
