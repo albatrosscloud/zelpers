@@ -15,40 +15,18 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
-    public static String precio(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
-    }
+    
 
     public static String notaDecimal(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("00.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.notaDecimalXDecimals(value, 2);
     }
 
     public static String notaDecimal4Decimals(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("00.0000", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.notaDecimalXDecimals(value, 4);
     }
 
     public static String notaDecimal10Decimals(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("00.0000000000", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.notaDecimalXDecimals(value, 10);
     }
 
     public static String notaDecimalXDecimals(Object value, int decimales) {
@@ -70,6 +48,10 @@ public class NumberFormat {
         DecimalFormat myFormatter = new DecimalFormat("00", new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
     }
+    
+    public static String precio(Object value) {
+        return NumberFormat.precioMini(value, 2);
+    }
 
     public static String precioMini(Object value, int ancho) {
         if (value == null) {
@@ -86,12 +68,7 @@ public class NumberFormat {
     }
 
     public static String medida(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("###,##0.########", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.precioMini(value, 8);
     }
 
     public static String codigo(Object value, int ancho) {
