@@ -143,18 +143,27 @@ public class TypesUtil {
     }
 
     public static String getStringDate(Date fecha, String formato) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.print(hoy);
     }
 
     public static String getStringDate(Date fecha, String formato, String language) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language)).print(hoy);
     }
 
     public static String getStringDate(Date fecha, String formato, String language, String country) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language, country)).print(hoy);
@@ -167,6 +176,9 @@ public class TypesUtil {
     }
 
     public static String getStringDate(Timestamp fecha, String format) {
+        if (fecha == null) {
+            return null;
+        }
         SimpleDateFormat sdf = new SimpleDateFormat(format, new Locale("ES"));
         return sdf.format(fecha);
     }
