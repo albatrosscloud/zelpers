@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import java.io.File;
@@ -32,6 +33,10 @@ public class S3ServiceImp implements S3Service {
         PutObjectRequest objectRequest = new PutObjectRequest(bucket, bucketDirectory + fileName, file);
 
         if (publico) {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setCacheControl("max-age=604800, must-revalidate");
+            
+            objectRequest.withMetadata(metadata);
             objectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
         }
 
