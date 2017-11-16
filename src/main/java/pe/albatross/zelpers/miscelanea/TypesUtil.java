@@ -143,18 +143,27 @@ public class TypesUtil {
     }
 
     public static String getStringDate(Date fecha, String formato) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.print(hoy);
     }
 
-    public String getStringDate(Date fecha, String formato, String language) {
+    public static String getStringDate(Date fecha, String formato, String language) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language)).print(hoy);
     }
 
-    public String getStringDate(Date fecha, String formato, String language, String country) {
+    public static String getStringDate(Date fecha, String formato, String language, String country) {
+        if (fecha == null) {
+            return null;
+        }
         DateTime hoy = new DateTime(fecha);
         DateTimeFormatter fmt = DateTimeFormat.forPattern(formato);
         return fmt.withLocale(new Locale(language, country)).print(hoy);
@@ -167,6 +176,9 @@ public class TypesUtil {
     }
 
     public static String getStringDate(Timestamp fecha, String format) {
+        if (fecha == null) {
+            return null;
+        }
         SimpleDateFormat sdf = new SimpleDateFormat(format, new Locale("ES"));
         return sdf.format(fecha);
     }
@@ -266,25 +278,67 @@ public class TypesUtil {
 
     public static Map convertListToMap(String attr, List items) {
         Map map = new LinkedHashMap();
-        for (Object item : items) {
-            Object val = ObjectUtil.getParentTree(item, attr);
-            map.put(val, item);
-        }
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attr);
+            if (!(key == null)) {
+                map.put(key, item);
+            }
+        });
+        return map;
+    }
+
+    public static Map convertListToMap(String attrKey, String attrValue, List items) {
+        Map map = new LinkedHashMap();
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attrKey);
+            if (!(key == null)) {
+                Object val = ObjectUtil.getParentTree(item, attrValue);
+                map.put(key, val);
+            }
+        });
         return map;
     }
 
     public static Map convertListToMapList(String attr, List items) {
         Map map = new LinkedHashMap();
-        for (Object item : items) {
-            Object val = ObjectUtil.getParentTree(item, attr);
-            List lista = (List) map.get(val);
-            if (lista == null) {
-                lista = new ArrayList();
-                map.put(val, lista);
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attr);
+            if (!(key == null)) {
+                List lista = (List) map.get(key);
+                if (lista == null) {
+                    lista = new ArrayList();
+                    map.put(key, lista);
+                }
+                lista.add(item);
             }
-            lista.add(item);
-        }
+        });
         return map;
+    }
+
+    public static Map convertListToMapList(String attrKey, String attrValue, List items) {
+        Map map = new LinkedHashMap();
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attrKey);
+            if (!(key == null)) {
+                Object val = ObjectUtil.getParentTree(item, attrValue);
+                List lista = (List) map.get(key);
+                if (lista == null) {
+                    lista = new ArrayList();
+                    map.put(key, lista);
+                }
+                lista.add(val);
+            }
+        });
+        return map;
+    }
+
+    public static List extractListByAttr(String attr, List items) {
+        List list = new ArrayList();
+        items.forEach((item) -> {
+            Object obj = ObjectUtil.getParentTree(item, attr);
+            list.add(obj);
+        });
+        return list;
     }
 
 }

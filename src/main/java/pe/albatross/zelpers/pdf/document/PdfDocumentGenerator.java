@@ -32,6 +32,7 @@ public class PdfDocumentGenerator {
     public static Font FUENTE_5 = new Font(Font.FontFamily.HELVETICA, 5, Font.NORMAL, BaseColor.BLACK);
     public static Font FUENTE_6 = new Font(Font.FontFamily.HELVETICA, 5, Font.NORMAL, BaseColor.BLACK);
     public static Font FUENTE_7 = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+    public static Font FUENTE_8 = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
     public static Font FUENTE_9 = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
     public static Font FUENTE_10 = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
     public static Font FUENTE_11 = new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL, BaseColor.BLACK);
@@ -81,7 +82,8 @@ public class PdfDocumentGenerator {
     }
 
     public Document documentPageHorizontal(FileOutputStream baos, UEventoPaginaPdf eventoPaginaPdf) throws Exception {
-        Document document = new Document(PageSize.A4.rotate(), 46, 46, 20, 36);
+        //     Document document = new Document(PageSize.A4.rotate(), 46, 46, 20, 36);
+        Document document = new Document(PageSize.A4.rotate(), 46, 46, 36, 36);
         PdfWriter writer = PdfWriter.getInstance(document, baos);
 
         document = this.generarPlantillaAgrariaPdf(document, writer, eventoPaginaPdf);
@@ -161,12 +163,12 @@ public class PdfDocumentGenerator {
     }
 
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int icolspan, int ialin) {
-        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, null, ialin, FUENTE_6, null, null);
+        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, null, ialin, FUENTE_8, null, null);
         return celdaTablaReporte;
     }
 
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int icolspan, int rowspan, int ialin) {
-        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, rowspan, ialin, FUENTE_6, null, null);
+        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, rowspan, ialin, FUENTE_8, null, null);
         return celdaTablaReporte;
     }
 
@@ -176,7 +178,7 @@ public class PdfDocumentGenerator {
     }
 
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int icolspan, int ialin, Float paddiFloat) {
-        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, null, ialin, FUENTE_6, null, paddiFloat);
+        PdfPCell celdaTablaReporte = PdfDocumentGenerator.this.addBodyCellTable(strTituloCabecera, table, icolspan, null, ialin, FUENTE_8, null, paddiFloat);
         return celdaTablaReporte;
     }
 

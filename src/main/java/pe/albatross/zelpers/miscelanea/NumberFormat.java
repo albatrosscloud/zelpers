@@ -15,39 +15,26 @@ public class NumberFormat {
         return myFormatter.format(value);
     }
 
-    public static String precio(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
-    }
-
     public static String notaDecimal(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("00.00", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.notaDecimalXDecimals(value, 2);
     }
 
     public static String notaDecimal4Decimals(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        DecimalFormat myFormatter = new DecimalFormat("00.0000", new DecimalFormatSymbols(new Locale("pe", "PE")));
-        return myFormatter.format(value);
+        return NumberFormat.notaDecimalXDecimals(value, 4);
     }
 
     public static String notaDecimal10Decimals(Object value) {
+        return NumberFormat.notaDecimalXDecimals(value, 10);
+    }
+
+    public static String notaDecimalXDecimals(Object value, int decimales) {
         if (value == null) {
             return null;
         }
 
-        DecimalFormat myFormatter = new DecimalFormat("00.0000000000", new DecimalFormatSymbols(new Locale("pe", "PE")));
+        String cod = NumberFormat.codigo(0, decimales);
+
+        DecimalFormat myFormatter = new DecimalFormat("00." + cod, new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
     }
 
@@ -58,6 +45,10 @@ public class NumberFormat {
 
         DecimalFormat myFormatter = new DecimalFormat("00", new DecimalFormatSymbols(new Locale("pe", "PE")));
         return myFormatter.format(value);
+    }
+
+    public static String precio(Object value) {
+        return NumberFormat.precioMini(value, 2);
     }
 
     public static String precioMini(Object value, int ancho) {

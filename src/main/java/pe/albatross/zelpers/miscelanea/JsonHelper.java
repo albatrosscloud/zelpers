@@ -8,7 +8,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
@@ -20,6 +26,10 @@ public class JsonHelper {
     public static String TIPO_LISTAS = "List";
     private static final Logger logger = getLogger(JsonHelper.class);
     private String separador = ".";
+
+    private static List<Class> TIPOS_DATOS
+            = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class,
+                    BigDecimal.class, Character.class, Date.class, Timestamp.class);
 
     public JsonHelper(ObjectNode json, Object obj) {
         loadPrefijo(null, json, obj);
@@ -87,7 +97,7 @@ public class JsonHelper {
             String[] tipos = metodo.getReturnType().toString().split("\\.");
             String tipo = tipos[tipos.length - 1];
 
-            if (metodo.getName().startsWith("get") && TIPO_DATOS.indexOf(tipo) > -1) {
+            if (metodo.getName().startsWith("get") && TIPO_DATOS.contains(tipo)) {
                 StringBuilder sb = new StringBuilder(WordUtils.uncapitalize(metodo.getName().substring(3)));
                 StringBuilder tmp = new StringBuilder(prefijo);
                 if ("".equals(tmp.toString())) {
@@ -99,7 +109,29 @@ public class JsonHelper {
                 try {
                     Object rpta = metodo.invoke(obj);
                     if (rpta != null) {
-                        json.put(tmp.toString(), rpta.toString());
+                        if (rpta instanceof Date) {
+                            json.put(tmp.toString(), ((Date) rpta).getTime());
+                        } else if (rpta instanceof Time) {
+                            json.put(tmp.toString(), ((Time) rpta).getTime());
+                        } else if (rpta instanceof Timestamp) {
+                            json.put(tmp.toString(), ((Timestamp) rpta).getTime());
+                        } else if (rpta instanceof Integer) {
+                            json.put(tmp.toString(), (Integer) rpta);
+                        } else if (rpta instanceof Double) {
+                            json.put(tmp.toString(), (Double) rpta);
+                        } else if (rpta instanceof Float) {
+                            json.put(tmp.toString(), (Float) rpta);
+                        } else if (rpta instanceof Long) {
+                            json.put(tmp.toString(), (Long) rpta);
+                        } else if (rpta instanceof BigDecimal) {
+                            json.put(tmp.toString(), (BigDecimal) rpta);
+                        } else if (rpta instanceof Character) {
+                            json.put(tmp.toString(), (Character) rpta);
+                        } else if (rpta instanceof String) {
+                            json.put(tmp.toString(), (String) rpta);
+                        } else {
+                            json.put(tmp.toString(), rpta.toString());
+                        }
                     }
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
@@ -118,7 +150,7 @@ public class JsonHelper {
             String[] tipos = metodo.getReturnType().toString().split("\\.");
             String tipo = tipos[tipos.length - 1];
 
-            if (metodo.getName().equals("getId") && TIPO_DATOS.indexOf(tipo) > -1) {
+            if (metodo.getName().equals("getId") && TIPO_DATOS.contains(tipo)) {
                 StringBuilder sb = new StringBuilder(WordUtils.uncapitalize(metodo.getName().substring(3)));
                 StringBuilder tmp = new StringBuilder(prefijo);
                 if ("".equals(tmp.toString())) {
@@ -254,15 +286,75 @@ public class JsonHelper {
 
     public static Object fromJson(String json, Class clazz) {
         try {
-            
+
             ObjectMapper mapper = new ObjectMapper();
             Object object = (Object) mapper.readValue(json, clazz);
             return object;
-            
+
         } catch (IOException ex) {
             logger.debug("Error al Deserializar/Unmarshall");
             return null;
         }
 
+    }
+
+    public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory) {
+        ObjectNode json = new ObjectNode(jsonFactory);
+
+        if (obj == null) {
+            return null;
+        }
+
+        Class clazz = obj.getClass();
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            Class claxx = method.getReturnType();
+            if (!TIPOS_DATOS.contains(claxx)) {
+                continue;
+            }
+
+            if (!method.getName().startsWith("get")) {
+                continue;
+            }
+
+            try {
+                Object value = method.invoke(obj);
+                if (value == null) {
+                    continue;
+                }
+
+                String methodName = method.getName().substring(3);
+                String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+
+                if (value instanceof Date) {
+                    json.put(attr, ((Date) value).getTime());
+                } else if (value instanceof Time) {
+                    json.put(attr, ((Time) value).getTime());
+                } else if (value instanceof Timestamp) {
+                    json.put(attr, ((Timestamp) value).getTime());
+                } else if (value instanceof Integer) {
+                    json.put(attr, (Integer) value);
+                } else if (value instanceof Double) {
+                    json.put(attr, (Double) value);
+                } else if (value instanceof Float) {
+                    json.put(attr, (Float) value);
+                } else if (value instanceof Long) {
+                    json.put(attr, (Long) value);
+                } else if (value instanceof BigDecimal) {
+                    json.put(attr, (BigDecimal) value);
+                } else if (value instanceof Character) {
+                    json.put(attr, (Character) value);
+                } else if (value instanceof String) {
+                    json.put(attr, (String) value);
+                } else {
+                    json.put(attr, value.toString());
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+            }
+        }
+
+        return json;
     }
 }
