@@ -346,6 +346,8 @@ public class JsonHelper {
                     json.put(attr, (Character) value);
                 } else if (value instanceof String) {
                     json.put(attr, (String) value);
+                } else if (value instanceof Enum) {
+                    json.put(attr, (String) ((Enum) value).name());
                 } else {
                     json.put(attr, value.toString());
                 }

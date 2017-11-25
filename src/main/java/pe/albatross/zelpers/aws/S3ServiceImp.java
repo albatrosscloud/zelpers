@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -56,37 +57,74 @@ public class S3ServiceImp implements S3Service {
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        
         this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico);
     }
 
     @Async
     @Override
+    @Deprecated
     public void deleteFile(String buket, String directory, String fileName) {
+        
+        this.deleteFile(buket, directory + fileName);
+    }
 
+    @Async
+    @Override
+    public void deleteFile(String buket, String path) {
+       
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        s3client.deleteObject(new DeleteObjectRequest(buket, directory + fileName));
+        s3client.deleteObject(new DeleteObjectRequest(buket, path));
     }
 
     @Override
+    @Deprecated
     public InputStream getFile(String bucket, String directory, String fileName) {
+        
+        return this.getFile(bucket, directory + fileName);
+    }
+
+    @Override
+    public InputStream getFile(String bucket, String path) {
 
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(new GetObjectRequest(bucket, directory + fileName));
+        S3Object object = s3client.getObject(new GetObjectRequest(bucket, path));
 
         return object.getObjectContent();
     }
 
     @Override
+    @Deprecated
     public boolean doesExist(String bucket, String directory, String fileName) {
-
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-
-        return s3client.doesObjectExist(bucket, directory + fileName);
-
+        return this.doesExist(bucket, directory + fileName);
     }
 
     @Override
-    public List<Inode> allFile(String bucket, String directory, boolean recursive) {
+    public boolean doesExist(String bucket, String path) {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        return s3client.doesObjectExist(bucket, path);
+    }
+
+    @Override
+    public boolean createDirectory(String bucket, String directory) {
+
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(0);
+
+        InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
+                directory + DELIMITER, emptyContent, metadata);
+
+        s3client.putObject(putObjectRequest);
+
+        return this.doesExist(bucket, directory);
+    }
+
+    @Override
+    public Inode allFile(String bucket, String directory, boolean recursive) {
 
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
@@ -112,7 +150,7 @@ public class S3ServiceImp implements S3Service {
 
             for (String dir : result.getCommonPrefixes()) {
 
-                Inode inode = this.getInodeDirectory(dir);
+                Inode inode = this.getInodeDirectory(bucket, dir);
 
                 if (recursive) {
                     this.allFile(bucket, inode.getPath(), recursive);
@@ -125,22 +163,24 @@ public class S3ServiceImp implements S3Service {
                 if (o.getKey().equals(directory)) {
                     continue;
                 }
-                inodes.add(this.getInode(o));
+                inodes.add(this.getInodeFile(o));
             }
 
             request.setContinuationToken(result.getNextContinuationToken());
 
         } while (result.isTruncated());
 
-        return inodes;
-
+        Inode inode = this.getInodeDirectory(bucket, directory);
+        inode.setItems(inodes);
+        return inode;
     }
 
-    private Inode getInodeDirectory(String pathDirectory) {
+    private Inode getInodeDirectory(String bucket, String pathDirectory) {
 
         Inode inode = new Inode();
         inode.setType(Inode.Type.DIRECTORY);
         inode.setPath(pathDirectory);
+        inode.setBucket(bucket);
 
         File file = new File(pathDirectory);
         inode.setTitle(file.getName());
@@ -149,18 +189,25 @@ public class S3ServiceImp implements S3Service {
         return inode;
     }
 
-    private Inode getInode(S3ObjectSummary summary) {
+    private Inode getInodeFile(S3ObjectSummary summary) {
 
+        String bucket = summary.getBucketName();
         String path = summary.getKey();
 
         Inode inode = new Inode();
         inode.setType(Inode.Type.FILE);
         inode.setPath(path);
+        inode.setBucket(bucket);
         inode.setSize(summary.getSize());
 
         inode.setTitle(FilenameUtils.getBaseName(path));
         inode.setFileName(FilenameUtils.getName(path));
         inode.setExtension(FilenameUtils.getExtension(path));
+
+        String url = String.format("https://%s.s3.amazonaws.com/%s",
+                bucket, path);
+
+        inode.setUrl(url);
 
         return inode;
     }

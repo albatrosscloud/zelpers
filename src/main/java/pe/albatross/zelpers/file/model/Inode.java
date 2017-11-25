@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import org.springframework.util.CollectionUtils;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 public class Inode {
@@ -13,6 +14,7 @@ public class Inode {
     }
 
     private Type type;
+    private String bucket;
     private String fileName;
     private String title;
     private String extension;
@@ -94,15 +96,27 @@ public class Inode {
         this.items = items;
     }
 
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
     public ObjectNode toJson() {
         ObjectNode json = JsonHelper.createJson(this, JsonNodeFactory.instance);
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (Inode inode : this.getItems()) {
-            ObjectNode item = inode.toJson();
-            array.add(item);
+
+        if (!CollectionUtils.isEmpty(this.items)) {
+          
+            for (Inode inode : this.getItems()) {
+                array.add(inode.toJson());
+            }
+            
+            json.set("items", array);
         }
-        json.set("items", array);
 
         return json;
     }
