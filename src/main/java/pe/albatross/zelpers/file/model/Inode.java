@@ -22,6 +22,7 @@ public class Inode {
     private String path;
     private String url;
     private String mime;
+    private Inode parent;
     private List<Inode> items;
 
     public Type getType() {
@@ -30,6 +31,14 @@ public class Inode {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
     }
 
     public String getFileName() {
@@ -88,6 +97,14 @@ public class Inode {
         this.mime = mime;
     }
 
+    public Inode getParent() {
+        return parent;
+    }
+
+    public void setParent(Inode parent) {
+        this.parent = parent;
+    }
+
     public List<Inode> getItems() {
         return items;
     }
@@ -96,27 +113,19 @@ public class Inode {
         this.items = items;
     }
 
-    public String getBucket() {
-        return bucket;
-    }
-
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
-    }
-
     public ObjectNode toJson() {
-        ObjectNode json = JsonHelper.createJson(this, JsonNodeFactory.instance);
+        ObjectNode json = JsonHelper.createJson(this, JsonNodeFactory.instance, true);
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
         if (!CollectionUtils.isEmpty(this.items)) {
-          
             for (Inode inode : this.getItems()) {
                 array.add(inode.toJson());
             }
-            
+
             json.set("items", array);
         }
+
+        json.set("parent", JsonHelper.createJson(this.getParent(), JsonNodeFactory.instance, true));
 
         return json;
     }

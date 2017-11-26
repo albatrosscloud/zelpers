@@ -29,7 +29,7 @@ public class JsonHelper {
 
     private static List<Class> TIPOS_DATOS
             = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class,
-                    BigDecimal.class, Character.class, Date.class, Timestamp.class);
+                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class);
 
     public JsonHelper(ObjectNode json, Object obj) {
         loadPrefijo(null, json, obj);
@@ -299,6 +299,10 @@ public class JsonHelper {
     }
 
     public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory) {
+        return JsonHelper.createJson(obj, jsonFactory, false);
+    }
+
+    public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory, boolean allowNullsBlanks) {
         ObjectNode json = new ObjectNode(jsonFactory);
 
         if (obj == null) {
@@ -309,24 +313,26 @@ public class JsonHelper {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             Class claxx = method.getReturnType();
-            if (!TIPOS_DATOS.contains(claxx)) {
-                continue;
-            }
 
-            if (!method.getName().startsWith("get")) {
+            if (!(method.getName().startsWith("get") || method.getName().startsWith("is"))) {
                 continue;
             }
 
             try {
                 Object value = method.invoke(obj);
-                if (value == null) {
+                if (!allowNullsBlanks && value == null) {
+                    continue;
+                }
+
+                if (!TIPOS_DATOS.contains(claxx) && !(value instanceof Enum)) {
                     continue;
                 }
 
                 String methodName = method.getName().substring(3);
                 String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
-
-                if (value instanceof Date) {
+                if (value == null) {
+                    json.put(attr, "");
+                } else if (value instanceof Date) {
                     json.put(attr, ((Date) value).getTime());
                 } else if (value instanceof Time) {
                     json.put(attr, ((Time) value).getTime());
@@ -346,8 +352,10 @@ public class JsonHelper {
                     json.put(attr, (Character) value);
                 } else if (value instanceof String) {
                     json.put(attr, (String) value);
+                } else if (value instanceof Boolean) {
+                    json.put(attr, (Boolean) value);
                 } else if (value instanceof Enum) {
-                    json.put(attr, (String) ((Enum) value).name());
+                    json.put(attr, ((Enum) value).name());
                 } else {
                     json.put(attr, value.toString());
                 }

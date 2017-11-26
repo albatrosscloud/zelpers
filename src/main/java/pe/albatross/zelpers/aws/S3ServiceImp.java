@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -57,7 +58,7 @@ public class S3ServiceImp implements S3Service {
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
-        
+
         this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico);
     }
 
@@ -65,14 +66,14 @@ public class S3ServiceImp implements S3Service {
     @Override
     @Deprecated
     public void deleteFile(String buket, String directory, String fileName) {
-        
+
         this.deleteFile(buket, directory + fileName);
     }
 
     @Async
     @Override
     public void deleteFile(String buket, String path) {
-       
+
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         s3client.deleteObject(new DeleteObjectRequest(buket, path));
     }
@@ -80,7 +81,7 @@ public class S3ServiceImp implements S3Service {
     @Override
     @Deprecated
     public InputStream getFile(String bucket, String directory, String fileName) {
-        
+
         return this.getFile(bucket, directory + fileName);
     }
 
@@ -185,6 +186,10 @@ public class S3ServiceImp implements S3Service {
         File file = new File(pathDirectory);
         inode.setTitle(file.getName());
         inode.setFileName(file.getName());
+
+        if (!StringUtils.isEmpty(file.getParent())) {
+            inode.setParent(this.getInodeDirectory(bucket, file.getParent()));
+        }
 
         return inode;
     }
