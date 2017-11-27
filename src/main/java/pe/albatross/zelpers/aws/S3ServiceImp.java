@@ -154,7 +154,7 @@ public class S3ServiceImp implements S3Service {
                 Inode inode = this.getInodeDirectory(bucket, dir);
 
                 if (recursive) {
-                    this.allFile(bucket, inode.getPath(), recursive);
+                    inode = this.allFile(bucket, inode.getPath(), recursive);
                 }
 
                 inodes.add(inode);
