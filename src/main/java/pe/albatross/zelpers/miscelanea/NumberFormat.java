@@ -28,12 +28,23 @@ public class NumberFormat {
     }
 
     public final static String roman(int number) {
+        if (number > 3999 || number < 1) {
+            return number + "";
+        }
+
         int floor = mapRomans.floorKey(number);
         if (number == floor) {
             return mapRomans.get(number);
         }
 
         return mapRomans.get(floor) + roman(number - floor);
+    }
+    
+    public static void main(String[] args){
+        System.out.println(roman(0));
+        System.out.println(roman(-232));
+        System.out.println(roman(232));
+        System.out.println(roman(4432));
     }
 
     public static String dec(Object value) {
