@@ -341,4 +341,50 @@ public class TypesUtil {
         return list;
     }
 
+    public static ListsInspector analizeLists(List listDB, List listForm, String attr) {
+        if (listDB == null) {
+            listDB = new ArrayList();
+        }
+        if (listForm == null) {
+            listForm = new ArrayList();
+        }
+
+        Map mapListDB = TypesUtil.convertListToMap(attr, listDB);
+        Map mapListForm = TypesUtil.convertListToMap(attr, listForm);
+
+        List newList = new ArrayList();
+        List deadList = new ArrayList();
+        List oldListDB = new ArrayList();
+        List oldListForm = new ArrayList();
+
+        for (Object itemDB : listDB) {
+            Object idDB = ObjectUtil.getParentTree(itemDB, attr);
+            Object itemForm = mapListForm.get(idDB);
+            if (itemForm == null) {
+                deadList.add(itemDB);
+                continue;
+            }
+            oldListDB.add(itemDB);
+            oldListForm.add(itemForm);
+        }
+
+        for (Object itemForm : listForm) {
+            Object idForm = ObjectUtil.getParentTree(itemForm, attr);
+            Object itemDB = mapListDB.get(idForm);
+            if (itemDB == null) {
+                newList.add(itemForm);
+            }
+        }
+
+        ListsInspector inspector = new ListsInspector();
+        inspector.setDeadList(deadList);
+        inspector.setListDB(listDB);
+        inspector.setListForm(listForm);
+        inspector.setNewList(newList);
+        inspector.setOldListDB(oldListDB);
+        inspector.setOldListForm(oldListForm);
+
+        return inspector;
+    }
+
 }
