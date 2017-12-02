@@ -39,13 +39,6 @@ public class NumberFormat {
 
         return mapRomans.get(floor) + roman(number - floor);
     }
-    
-    public static void main(String[] args){
-        System.out.println(roman(0));
-        System.out.println(roman(-232));
-        System.out.println(roman(232));
-        System.out.println(roman(4432));
-    }
 
     public static String dec(Object value) {
         if (value == null) {
