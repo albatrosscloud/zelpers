@@ -1,7 +1,8 @@
-package pe.albatross.zelpers.miscelanea;
+package pe.albatross.zelpers.calendar;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 public class EventCalendar {
 
