@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.beans.Introspector;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Time;
@@ -367,4 +369,36 @@ public class JsonHelper {
 
         return json;
     }
+
+    public static ObjectNode enumToJson(Object[] objects) {
+        ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
+
+        for (Object obj : objects) {
+
+            ObjectNode jsonAttr = new ObjectNode(JsonNodeFactory.instance);
+
+            for (Method method : obj.getClass().getDeclaredMethods()) {
+                try {
+                    if (!(method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0)) {
+                        continue;
+                    }
+                    Object returnObject = method.invoke(obj);
+                    String attributeName = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
+
+                    jsonAttr.put(attributeName, returnObject.toString());
+                    
+                } catch (IllegalAccessException
+                        | IllegalArgumentException
+                        | InvocationTargetException e) {
+                    logger.info(e.getLocalizedMessage());
+                    logger.debug("Error", e);
+                }
+            }
+
+            jsonEnum.set(obj.toString(), jsonAttr);
+        }
+
+        return jsonEnum;
+    }
+
 }
