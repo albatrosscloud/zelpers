@@ -376,6 +376,7 @@ public class JsonHelper {
         for (Object obj : objects) {
 
             ObjectNode jsonAttr = new ObjectNode(JsonNodeFactory.instance);
+            jsonAttr.put("name", obj.toString());
 
             for (Method method : obj.getClass().getDeclaredMethods()) {
                 try {
@@ -386,7 +387,7 @@ public class JsonHelper {
                     String attributeName = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
 
                     jsonAttr.put(attributeName, returnObject.toString());
-                    
+
                 } catch (IllegalAccessException
                         | IllegalArgumentException
                         | InvocationTargetException e) {
