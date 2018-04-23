@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.text.WordUtils;
@@ -14,6 +16,10 @@ import org.slf4j.LoggerFactory;
 public class ObjectUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectUtil.class);
+
+    public static List<Class> TYPICAL_CLASSES = Arrays.asList(
+            String.class, Integer.class, Long.class, BigDecimal.class, Float.class, Double.class, Timestamp.class, Date.class
+    );
 
     public static Object completarAtributoObjeto(Object obj, String atributo) {
         Object objAttr = null;
@@ -172,6 +178,82 @@ public class ObjectUtil {
 
         }
 
+    }
+
+    public static void eliminarAttrSinId(Object obj) {
+        if (obj == null) {
+            return;
+        }
+
+        for (Method metodo : obj.getClass().getMethods()) {
+            if (metodo.getName().startsWith("get")) {
+                Object attr = null;
+                try {
+                    attr = metodo.invoke(obj);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (attr == null) {
+                    continue;
+                }
+
+                if (attr.getClass().equals(Class.class)) {
+                    continue;
+                }
+                if (TYPICAL_CLASSES.contains(attr.getClass())) {
+                    continue;
+                }
+                if (!tieneAttrId(attr)) {
+                    continue;
+                }
+                if (tieneIdNull(attr)) {
+                    String metodoSet = "set" + metodo.getName().substring(3);
+                    setValorNull(obj, metodoSet);
+                    continue;
+                }
+                eliminarAttrSinId(attr);
+            }
+        }
+
+    }
+
+    private static void setValorNull(Object obj, String attr) {
+        for (Method metodo : obj.getClass().getMethods()) {
+            if (metodo.getName().equals(attr)) {
+                try {
+                    metodo.invoke(obj, new Object[]{null});
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static boolean tieneIdNull(Object obj) {
+        for (Method metodo : obj.getClass().getMethods()) {
+            if (metodo.getName().equals("getId")) {
+                Object attr = null;
+                try {
+                    attr = metodo.invoke(obj);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (attr == null) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static boolean tieneAttrId(Object obj) {
+        for (Method metodo : obj.getClass().getMethods()) {
+            if (metodo.getName().equals("getId")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void printAttr(Object obj) {
