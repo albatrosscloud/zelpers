@@ -370,7 +370,8 @@ public class JsonHelper {
         return json;
     }
 
-    public static ObjectNode enumToJson(Object[] objects) {
+    public static ObjectNode enumToJson(Object[] objects) {   
+        
         ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
 
         for (Object obj : objects) {
@@ -392,6 +393,7 @@ public class JsonHelper {
                         | IllegalArgumentException
                         | InvocationTargetException e) {
                     logger.info(e.getLocalizedMessage());
+                    
                     logger.debug("Error", e);
                 }
             }

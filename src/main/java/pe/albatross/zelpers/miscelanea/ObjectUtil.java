@@ -191,8 +191,9 @@ public class ObjectUtil {
                 try {
                     attr = metodo.invoke(obj);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(ex.getMessage());
                 }
+                
                 if (attr == null) {
                     continue;
                 }
@@ -223,7 +224,7 @@ public class ObjectUtil {
                 try {
                     metodo.invoke(obj, new Object[]{null});
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(ex.getMessage());
                 }
             }
         }
@@ -236,7 +237,7 @@ public class ObjectUtil {
                 try {
                     attr = metodo.invoke(obj);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(ex.getMessage());
                 }
                 if (attr == null) {
                     return true;
