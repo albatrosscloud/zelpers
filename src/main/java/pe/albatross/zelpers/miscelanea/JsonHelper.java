@@ -8,17 +8,24 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -370,8 +377,218 @@ public class JsonHelper {
         return json;
     }
 
-    public static ObjectNode enumToJson(Object[] objects) {   
-        
+    public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory, String[] attrs) {
+        ObjectNode json = new ObjectNode(jsonFactory);
+
+        if (obj == null) {
+            return null;
+        }
+
+        Class objectClass = obj.getClass();
+
+        Method[] methods = objectClass.getMethods();
+
+        Map<String, List<String>> mapAttr = new LinkedHashMap();
+
+        for (String attr : attrs) {
+            int cant = StringUtils.countMatches(attr, ".");
+            if (cant == 0) {
+                if (attr.equals("*")) {
+                    putAllAttr(json, obj, methods, objectClass);
+                } else {
+                    putOneAttr(json, obj, attr, objectClass);
+                }
+            } else {
+                String attrKey = attr.substring(0, attr.indexOf("."));
+                String attrValue = attr.substring(attr.indexOf(".") + 1);
+                List<String> attrList = mapAttr.get(attrKey);
+                if (attrList == null) {
+                    attrList = new ArrayList();
+                    mapAttr.put(attrKey, attrList);
+                }
+                attrList.add(attrValue);
+            }
+        }
+
+        for (Map.Entry<String, List<String>> entry : mapAttr.entrySet()) {
+            String attr = entry.getKey();
+            List<String> listSubAttr = entry.getValue();
+
+            Method method = ObjectUtil.getMethod(obj, attr);
+            if (method == null) {
+                throw new PhobosException("No existe atributo o metodo GET para el atributo: " + attr);
+            }
+
+            Class methodClass = method.getReturnType();
+            Object objAttr = null;
+            try {
+                objAttr = method.invoke(obj);
+            } catch (Exception ex) {
+            }
+            if (objAttr == null) {
+                try {
+                    Constructor konst = methodClass.getConstructor();
+                    objAttr = konst.newInstance();
+                } catch (Exception ex) {
+                    throw new PhobosException("El atributo " + attr + " no puede ser instanciado por un constructor de la forma: new Object()");
+                }
+            }
+            String[] attrObj = listSubAttr.toArray(new String[listSubAttr.size()]);
+            ObjectNode jsonAttr = createJson(objAttr, jsonFactory, attrObj);
+            json.set(attr, jsonAttr);
+        }
+
+        return json;
+    }
+
+    private static void putAllAttr(ObjectNode json, Object obj, Method[] methods, Class objectClass) {
+        for (Method method : methods) {
+            if (!(method.getName().startsWith("get") || method.getName().startsWith("is"))) {
+                continue;
+            }
+
+            try {
+                Object value = method.invoke(obj);
+                Class methodClass = method.getReturnType();
+
+                if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
+                    continue;
+                }
+
+                String methodName = method.getName().substring(3);
+                String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+
+                if (value == null) {
+                    json.put(attr, "");
+                } else if (value instanceof Date) {
+                    json.put(attr, getDateValue(objectClass, attr, (Date) value));
+                } else if (value instanceof Time) {
+                    json.put(attr, ((Time) value).getTime());
+                } else if (value instanceof Timestamp) {
+                    json.put(attr, getDateValue(objectClass, attr, new Date(((Timestamp) value).getTime())));
+                } else if (value instanceof Integer) {
+                    json.put(attr, (Integer) value);
+                } else if (value instanceof Double) {
+                    json.put(attr, (Double) value);
+                } else if (value instanceof Float) {
+                    json.put(attr, (Float) value);
+                } else if (value instanceof Long) {
+                    json.put(attr, (Long) value);
+                } else if (value instanceof BigDecimal) {
+                    json.put(attr, (BigDecimal) value);
+                } else if (value instanceof Character) {
+                    json.put(attr, (Character) value);
+                } else if (value instanceof String) {
+                    json.put(attr, (String) value);
+                } else if (value instanceof Boolean) {
+                    json.put(attr, (Boolean) value);
+                } else if (value instanceof Enum) {
+                    json.put(attr, getEnumValue((Enum) value));
+                } else {
+                    json.put(attr, value.toString());
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+            }
+        }
+    }
+
+    private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass) {
+        Method method = ObjectUtil.getMethod(obj, attr);
+        if (method == null) {
+            throw new PhobosException("No existe atributo o metodo GET para el atributo: " + attr);
+        }
+
+        Class methodClass = method.getReturnType();
+        Object value = null;
+        try {
+            value = method.invoke(obj);
+        } catch (Exception ex) {
+        }
+
+        if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
+            return;
+        }
+
+        if (value == null) {
+            json.put(attr, "");
+        } else if (value instanceof Date) {
+            json.put(attr, getDateValue(objectClass, attr, (Date) value));
+        } else if (value instanceof Time) {
+            json.put(attr, ((Time) value).getTime());
+        } else if (value instanceof Timestamp) {
+            json.put(attr, getDateValue(objectClass, attr, new Date(((Timestamp) value).getTime())));
+        } else if (value instanceof Integer) {
+            json.put(attr, (Integer) value);
+        } else if (value instanceof Double) {
+            json.put(attr, (Double) value);
+        } else if (value instanceof Float) {
+            json.put(attr, (Float) value);
+        } else if (value instanceof Long) {
+            json.put(attr, (Long) value);
+        } else if (value instanceof BigDecimal) {
+            json.put(attr, (BigDecimal) value);
+        } else if (value instanceof Character) {
+            json.put(attr, (Character) value);
+        } else if (value instanceof String) {
+            json.put(attr, (String) value);
+        } else if (value instanceof Boolean) {
+            json.put(attr, (Boolean) value);
+        } else if (value instanceof Enum) {
+            json.put(attr, getEnumValue((Enum) value));
+        } else {
+            json.put(attr, value.toString());
+        }
+    }
+
+    private static String getEnumValue(Enum enumValue) {
+        if (enumValue == null) {
+            return "";
+        }
+        Class clazz = enumValue.getClass();
+        Method method = null;
+        try {
+            method = clazz.getMethod("getValue");
+        } catch (Exception ex) {
+        }
+        String value = "";
+        try {
+            value = (String) method.invoke(enumValue);
+        } catch (Exception ex) {
+        }
+        return value;
+    }
+
+    private static String getDateValue(Class clazz, String attr, Date date) {
+        if (date == null) {
+            return "";
+        }
+
+        Field ff = null;
+
+        try {
+            ff = clazz.getDeclaredField(attr);
+        } catch (Exception ex) {
+        }
+
+        DateTime dt = new DateTime(date);
+        if (ff != null && ff.isAnnotationPresent(Temporal.class)) {
+            Temporal tt = (Temporal) ff.getAnnotation(Temporal.class);
+            if (tt.value() == TemporalType.TIME) {
+                return dt.toString("HH:mm:ss");
+            }
+
+            if (tt.value() == TemporalType.TIMESTAMP) {
+                return dt.toString("dd/MM/yyyy HH:mm:ss");
+            }
+        }
+
+        return dt.toString("dd/MM/yyyy");
+    }
+
+    public static ObjectNode enumToJson(Object[] objects) {
+
         ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
 
         for (Object obj : objects) {
@@ -393,7 +610,7 @@ public class JsonHelper {
                         | IllegalArgumentException
                         | InvocationTargetException e) {
                     logger.info(e.getLocalizedMessage());
-                    
+
                     logger.debug("Error", e);
                 }
             }

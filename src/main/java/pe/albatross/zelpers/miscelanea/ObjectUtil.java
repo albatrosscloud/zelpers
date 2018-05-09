@@ -193,7 +193,7 @@ public class ObjectUtil {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                 }
-                
+
                 if (attr == null) {
                     continue;
                 }
@@ -274,7 +274,7 @@ public class ObjectUtil {
                     Object returnObject = method.invoke(obj);
                     System.out.println("|\t" + method.getName() + " - " + returnObject);
                 } catch (Exception ex) {
-                    logger.error(ex.getMessage());
+                    logger.error(method.getName() + ": " + ex.getMessage());
                 }
             }
 
