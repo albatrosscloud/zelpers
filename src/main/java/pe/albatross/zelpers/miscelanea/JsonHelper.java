@@ -378,6 +378,10 @@ public class JsonHelper {
     }
 
     public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory, String[] attrs) {
+        return createJson(obj, jsonFactory, false, attrs);
+    }
+
+    public static ObjectNode createJson(Object obj, JsonNodeFactory jsonFactory, boolean allowNullsBlanks, String[] attrs) {
         ObjectNode json = new ObjectNode(jsonFactory);
 
         if (obj == null) {
@@ -394,9 +398,9 @@ public class JsonHelper {
             int cant = StringUtils.countMatches(attr, ".");
             if (cant == 0) {
                 if (attr.equals("*")) {
-                    putAllAttr(json, obj, methods, objectClass);
+                    putAllAttr(json, obj, methods, objectClass, allowNullsBlanks);
                 } else {
-                    putOneAttr(json, obj, attr, objectClass);
+                    putOneAttr(json, obj, attr, objectClass, allowNullsBlanks);
                 }
             } else {
                 String attrKey = attr.substring(0, attr.indexOf("."));
@@ -434,14 +438,14 @@ public class JsonHelper {
                 }
             }
             String[] attrObj = listSubAttr.toArray(new String[listSubAttr.size()]);
-            ObjectNode jsonAttr = createJson(objAttr, jsonFactory, attrObj);
+            ObjectNode jsonAttr = createJson(objAttr, jsonFactory, allowNullsBlanks, attrObj);
             json.set(attr, jsonAttr);
         }
 
         return json;
     }
 
-    private static void putAllAttr(ObjectNode json, Object obj, Method[] methods, Class objectClass) {
+    private static void putAllAttr(ObjectNode json, Object obj, Method[] methods, Class objectClass, boolean allowNullsBlanks) {
         for (Method method : methods) {
             if (!(method.getName().startsWith("get") || method.getName().startsWith("is"))) {
                 continue;
@@ -449,6 +453,10 @@ public class JsonHelper {
 
             try {
                 Object value = method.invoke(obj);
+                if (!allowNullsBlanks && value == null) {
+                    continue;
+                }
+
                 Class methodClass = method.getReturnType();
 
                 if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
@@ -494,7 +502,7 @@ public class JsonHelper {
         }
     }
 
-    private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass) {
+    private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass, boolean allowNullsBlanks) {
         Method method = ObjectUtil.getMethod(obj, attr);
         if (method == null) {
             throw new PhobosException("No existe atributo o metodo GET para el atributo: " + attr);
@@ -502,9 +510,14 @@ public class JsonHelper {
 
         Class methodClass = method.getReturnType();
         Object value = null;
+
         try {
             value = method.invoke(obj);
         } catch (Exception ex) {
+        }
+
+        if (!allowNullsBlanks && value == null) {
+            return;
         }
 
         if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
