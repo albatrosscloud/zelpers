@@ -10,6 +10,15 @@ public class CodeGenerator {
         List<String> codex = new ArrayList(codes);
         Collections.sort(codex);
         List<String> codez = getCodes(inicio, codex.size() + 1);
+//        int loop = 0;
+//        for (String code : codez) {
+//            System.out.print(code + "  ");
+//            loop++;
+//            if (loop % 25 == 0) {
+//                System.out.println("");
+//            }
+//        }
+        
         for (int i = 0; i < codex.size(); i++) {
             String c1 = codex.get(i);
             String c2 = codez.get(i);
@@ -29,7 +38,7 @@ public class CodeGenerator {
     }
 
     private static String getCode(int i) {
-        if (i < 100) {
+        if (i < 1000) {
             return NumberFormat.codigo(i, 3, '0');
         }
         int r = i % 100;
