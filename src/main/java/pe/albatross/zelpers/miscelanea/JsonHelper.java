@@ -3,6 +3,7 @@ package pe.albatross.zelpers.miscelanea;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.Introspector;
@@ -337,8 +338,11 @@ public class JsonHelper {
                     continue;
                 }
 
-                String methodName = method.getName().substring(3);
+                String methodName = method.getName().startsWith("get")
+                        ? method.getName().substring(3)
+                        : method.getName().substring(0);
                 String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+
                 if (value == null) {
                     json.put(attr, "");
                 } else if (value instanceof Date) {
@@ -420,26 +424,47 @@ public class JsonHelper {
 
             Method method = ObjectUtil.getMethod(obj, attr);
             if (method == null) {
-                throw new PhobosException("No existe atributo o metodo GET para el atributo: " + attr);
+                throw new PhobosException("No existe el metodo GET o el metodo IS para el atributo: " + attr);
             }
 
             Class methodClass = method.getReturnType();
-            Object objAttr = null;
-            try {
-                objAttr = method.invoke(obj);
-            } catch (Exception ex) {
-            }
-            if (objAttr == null) {
+            if (methodClass == List.class) {
+                List listObjAttr = null;
                 try {
-                    Constructor konst = methodClass.getConstructor();
-                    objAttr = konst.newInstance();
+                    listObjAttr = (List) method.invoke(obj);
                 } catch (Exception ex) {
-                    throw new PhobosException("El atributo " + attr + " no puede ser instanciado por un constructor de la forma: new Object()");
                 }
+                if (listObjAttr == null) {
+                    listObjAttr = new ArrayList();
+                }
+
+                ArrayNode array = new ArrayNode(jsonFactory);
+                for (Object objAttr : listObjAttr) {
+                    String[] attrObj = listSubAttr.toArray(new String[listSubAttr.size()]);
+                    ObjectNode node = createJson(objAttr, jsonFactory, allowNullsBlanks, attrObj);
+                    array.add(node);
+                }
+
+                json.set(attr, array);
+
+            } else {
+                Object objAttr = null;
+                try {
+                    objAttr = method.invoke(obj);
+                } catch (Exception ex) {
+                }
+                if (objAttr == null) {
+                    try {
+                        Constructor konst = methodClass.getConstructor();
+                        objAttr = konst.newInstance();
+                    } catch (Exception ex) {
+                        throw new PhobosException("El atributo " + attr + " no puede ser instanciado por un constructor de la forma: new Object()");
+                    }
+                }
+                String[] attrObj = listSubAttr.toArray(new String[listSubAttr.size()]);
+                ObjectNode jsonAttr = createJson(objAttr, jsonFactory, allowNullsBlanks, attrObj);
+                json.set(attr, jsonAttr);
             }
-            String[] attrObj = listSubAttr.toArray(new String[listSubAttr.size()]);
-            ObjectNode jsonAttr = createJson(objAttr, jsonFactory, allowNullsBlanks, attrObj);
-            json.set(attr, jsonAttr);
         }
 
         return json;
@@ -463,7 +488,9 @@ public class JsonHelper {
                     continue;
                 }
 
-                String methodName = method.getName().substring(3);
+                String methodName = method.getName().startsWith("get")
+                        ? method.getName().substring(3)
+                        : method.getName().substring(0);
                 String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
 
                 if (value == null) {
@@ -505,7 +532,7 @@ public class JsonHelper {
     private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass, boolean allowNullsBlanks) {
         Method method = ObjectUtil.getMethod(obj, attr);
         if (method == null) {
-            throw new PhobosException("No existe atributo o metodo GET para el atributo: " + attr);
+            throw new PhobosException("No existe el metodo GET o el metodo IS para el atributo: " + attr);
         }
 
         Class methodClass = method.getReturnType();

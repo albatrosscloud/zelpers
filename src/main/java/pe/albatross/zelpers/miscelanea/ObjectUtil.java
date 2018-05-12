@@ -110,11 +110,17 @@ public class ObjectUtil {
 
     public static Method getMethod(Object obj, String atributo) {
         Method metodo = null;
-        StringBuilder sbMetodo = new StringBuilder("get");
-        sbMetodo.append(WordUtils.capitalize(atributo));
+        StringBuilder sbMetodoGet = new StringBuilder("get");
+        sbMetodoGet.append(WordUtils.capitalize(atributo));
+        StringBuilder sbMetodoIs = new StringBuilder("is");
+        sbMetodoIs.append(WordUtils.capitalize(atributo));
 
         for (Method metodoTmp : obj.getClass().getMethods()) {
-            if (sbMetodo.toString().equals(metodoTmp.getName())) {
+            if (sbMetodoGet.toString().equals(metodoTmp.getName())) {
+                metodo = metodoTmp;
+                break;
+            }
+            if (sbMetodoIs.toString().equals(metodoTmp.getName())) {
                 metodo = metodoTmp;
                 break;
             }
