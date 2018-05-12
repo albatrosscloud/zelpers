@@ -18,7 +18,7 @@ public class CodeGenerator {
 //                System.out.println("");
 //            }
 //        }
-        
+
         for (int i = 0; i < codex.size(); i++) {
             String c1 = codex.get(i);
             String c2 = codez.get(i);
@@ -29,10 +29,33 @@ public class CodeGenerator {
         return codez.get(codez.size() - 1);
     }
 
+    public static String getNextCode4(List<String> codes, String codeGroup) {
+        List<String> codex = new ArrayList(codes);
+        Collections.sort(codex);
+        List<String> codez = getCodes4(codeGroup);
+
+        for (int i = 0; i < codex.size(); i++) {
+            String c1 = codex.get(i);
+            String c2 = codez.get(i);
+            if (!c1.equals(c2)) {
+                return c2;
+            }
+        }
+        return codez.get(codex.size());
+    }
+
     public static List<String> getCodes(int inicio, int cantidad) {
         List<String> codes = new ArrayList();
         for (int i = inicio; i < cantidad + inicio; i++) {
             codes.add(getCode(i));
+        }
+        return codes;
+    }
+
+    public static List<String> getCodes4(String codeGroup) {
+        List<String> codes = new ArrayList();
+        for (int i = 0; i < 10; i++) {
+            codes.add(codeGroup + i);
         }
         return codes;
     }
