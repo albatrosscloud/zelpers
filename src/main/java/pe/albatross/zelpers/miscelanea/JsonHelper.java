@@ -39,7 +39,8 @@ public class JsonHelper {
 
     private static List<Class> TIPOS_DATOS
             = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class,
-                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class);
+                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class,
+                    boolean.class, int.class, float.class, double.class);
 
     public JsonHelper(ObjectNode json, Object obj) {
         loadPrefijo(null, json, obj);
@@ -476,55 +477,55 @@ public class JsonHelper {
                 continue;
             }
 
+            Object value = null;
             try {
-                Object value = method.invoke(obj);
-                if (!allowNullsBlanks && value == null) {
-                    continue;
-                }
-
-                Class methodClass = method.getReturnType();
-
-                if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
-                    continue;
-                }
-
-                String methodName = method.getName().startsWith("get")
-                        ? method.getName().substring(3)
-                        : method.getName().substring(0);
-                String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
-
-                if (value == null) {
-                    json.put(attr, "");
-                } else if (value instanceof Date) {
-                    json.put(attr, getDateValue(objectClass, attr, (Date) value));
-                } else if (value instanceof Time) {
-                    json.put(attr, ((Time) value).getTime());
-                } else if (value instanceof Timestamp) {
-                    json.put(attr, getDateValue(objectClass, attr, new Date(((Timestamp) value).getTime())));
-                } else if (value instanceof Integer) {
-                    json.put(attr, (Integer) value);
-                } else if (value instanceof Double) {
-                    json.put(attr, (Double) value);
-                } else if (value instanceof Float) {
-                    json.put(attr, (Float) value);
-                } else if (value instanceof Long) {
-                    json.put(attr, (Long) value);
-                } else if (value instanceof BigDecimal) {
-                    json.put(attr, (BigDecimal) value);
-                } else if (value instanceof Character) {
-                    json.put(attr, (Character) value);
-                } else if (value instanceof String) {
-                    json.put(attr, (String) value);
-                } else if (value instanceof Boolean) {
-                    json.put(attr, (Boolean) value);
-                } else if (value instanceof Enum) {
-                    json.put(attr, getEnumValue((Enum) value));
-                } else {
-                    json.put(attr, value.toString());
-                }
-
+                value = method.invoke(obj);
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
+            }
+
+            if (!allowNullsBlanks && value == null) {
+                continue;
+            }
+
+            Class methodClass = method.getReturnType();
+            if (!TIPOS_DATOS.contains(methodClass) && !(value instanceof Enum)) {
+                continue;
+            }
+
+            String methodName = method.getName().startsWith("get")
+                    ? method.getName().substring(3)
+                    : method.getName();
+            String attr = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+
+            if (value == null) {
+                json.put(attr, "");
+            } else if (value instanceof Date) {
+                json.put(attr, getDateValue(objectClass, attr, (Date) value));
+            } else if (value instanceof Time) {
+                json.put(attr, ((Time) value).getTime());
+            } else if (value instanceof Timestamp) {
+                json.put(attr, getDateValue(objectClass, attr, new Date(((Timestamp) value).getTime())));
+            } else if (value instanceof Integer) {
+                json.put(attr, (Integer) value);
+            } else if (value instanceof Double) {
+                json.put(attr, (Double) value);
+            } else if (value instanceof Float) {
+                json.put(attr, (Float) value);
+            } else if (value instanceof Long) {
+                json.put(attr, (Long) value);
+            } else if (value instanceof BigDecimal) {
+                json.put(attr, (BigDecimal) value);
+            } else if (value instanceof Character) {
+                json.put(attr, (Character) value);
+            } else if (value instanceof String) {
+                json.put(attr, (String) value);
+            } else if (value instanceof Boolean) {
+                json.put(attr, (Boolean) value);
+            } else if (value instanceof Enum) {
+                json.put(attr, getEnumValue((Enum) value));
+            } else {
+                json.put(attr, value.toString());
             }
         }
     }
