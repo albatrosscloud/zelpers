@@ -19,7 +19,7 @@ public class Commutator {
         return busquedas;
     }
 
-    private static void findConmutation(Map<Long, Object> mapDias, Map<Long, Object> mapTempo, int cant,
+    public static void findConmutation(Map<Long, Object> mapDias, Map<Long, Object> mapTempo, int cant,
             List<Map<Long, Object>> busquedas, Map<String, String> existentes) {
 
         Map<Long, Object> mapCortado = cloneMap(mapDias);
