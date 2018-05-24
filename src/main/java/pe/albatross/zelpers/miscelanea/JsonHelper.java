@@ -601,15 +601,14 @@ public class JsonHelper {
         return value;
     }
 
-    private static String getDateValue(Class clazz, String attr, Date date) {
+    private static String getDateValue(Class objectClazz, String attr, Date date) {
         if (date == null) {
             return "";
         }
 
         Field ff = null;
-
         try {
-            ff = clazz.getDeclaredField(attr);
+            ff = objectClazz.getDeclaredField(attr);
         } catch (Exception ex) {
         }
 
@@ -619,13 +618,9 @@ public class JsonHelper {
             if (tt.value() == TemporalType.TIME) {
                 return dt.toString("HH:mm:ss");
             }
-
-            if (tt.value() == TemporalType.TIMESTAMP) {
-                return dt.toString("dd/MM/yyyy HH:mm:ss");
-            }
         }
 
-        return dt.toString("dd/MM/yyyy");
+        return dt.toString("dd/MM/yyyy HH:mm:ss");
     }
 
     public static ObjectNode enumToJson(Object[] objects) {

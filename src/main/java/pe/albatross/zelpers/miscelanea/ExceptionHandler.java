@@ -13,7 +13,7 @@ public class ExceptionHandler {
 
     private static final Logger logger = getLogger(ExceptionHandler.class);
 
-    static String MENSAJE_ERROR_GRAL = "Lo sentimos, su petición no pudo ser atendida. Favor de comunicarse con Mesa de Ayuda";
+    static String MENSAJE_ERROR_GRAL = "Lo sentimos, su petición no pudo ser atendida. Comuníquese con Mesa de Ayuda";
 
     private static void showError(PhobosException ex) {
         int level = 2;
