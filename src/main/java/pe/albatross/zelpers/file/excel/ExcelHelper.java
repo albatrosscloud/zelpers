@@ -181,6 +181,16 @@ public class ExcelHelper {
         }
     }
 
+    public void replaceVal(int nroRow, int nroCell, Integer valor, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        if (valor == null) {
+            cell.setCellType(Cell.CELL_TYPE_BLANK);
+        } else {
+            cell.setCellValue(valor);
+        }
+        cell.setCellStyle(cellStyle);
+    }
+
     public void replaceVal(int nroRow, int nroCell, Long valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
@@ -188,6 +198,16 @@ public class ExcelHelper {
         } else {
             cell.setCellValue(valor);
         }
+    }
+
+    public void replaceVal(int nroRow, int nroCell, Long valor, CellStyle cellStyle) {
+        Cell cell = findCell(nroRow, nroCell);
+        if (valor == null) {
+            cell.setCellType(Cell.CELL_TYPE_BLANK);
+        } else {
+            cell.setCellValue(valor);
+        }
+        cell.setCellStyle(cellStyle);
     }
 
     public void replaceVal(int nroRow, int nroCell, String valor) {
