@@ -620,7 +620,8 @@ public class JsonHelper {
             }
         }
 
-        return dt.toString("dd/MM/yyyy HH:mm:ss");
+        String fecha = dt.toString("dd/MM/yyyy HH:mm:ss");
+        return fecha.replaceAll("00:00:00", "");
     }
 
     public static ObjectNode enumToJson(Object[] objects) {

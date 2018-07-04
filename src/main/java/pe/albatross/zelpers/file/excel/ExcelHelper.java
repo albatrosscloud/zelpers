@@ -142,7 +142,9 @@ public class ExcelHelper {
 
     public void replaceVal(int nroRow, int nroCell, Date valor, String formato, CellStyle cellStyle) {
         Cell cell = findCell(nroRow, nroCell);
-        replaceVal(nroRow, nroCell, valor);
+        if (valor != null) {
+            replaceVal(nroRow, nroCell, valor);
+        }
 
         cell.setCellStyle(cellStyle);
         DataFormat df = workBook.createDataFormat();
@@ -152,7 +154,9 @@ public class ExcelHelper {
 
     public void replaceVal(int nroRow, int nroCell, Date valor, String formato) {
         Cell cell = findCell(nroRow, nroCell);
-        replaceVal(nroRow, nroCell, valor);
+        if (valor != null) {
+            replaceVal(nroRow, nroCell, valor);
+        }
 
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         DataFormat df = workBook.createDataFormat();
@@ -162,7 +166,9 @@ public class ExcelHelper {
 
     public void replaceVal(int nroRow, int nroCell, Date valor, CellStyle cellStyle) {
         Cell cell = findCell(nroRow, nroCell);
-        replaceVal(nroRow, nroCell, valor);
+        if (valor != null) {
+            replaceVal(nroRow, nroCell, valor);
+        }
         cell.setCellStyle(cellStyle);
     }
 
