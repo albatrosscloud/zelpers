@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileHelper {
@@ -65,5 +68,15 @@ public class FileHelper {
         }
 
         return rtrn;
+    }
+
+    public static boolean moveFile(String oldName, String newName) {
+        try {
+            Files.move(Paths.get(oldName), Paths.get(newName), StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+
     }
 }
