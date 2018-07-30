@@ -621,7 +621,7 @@ public class JsonHelper {
         }
 
         String fecha = dt.toString("dd/MM/yyyy HH:mm:ss");
-        return fecha.replaceAll("00:00:00", "");
+        return fecha.replaceAll("00:00:00", "").trim();
     }
 
     public static ObjectNode enumToJson(Object[] objects) {
