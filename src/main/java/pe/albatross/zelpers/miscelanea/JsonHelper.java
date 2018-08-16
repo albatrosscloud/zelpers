@@ -481,7 +481,7 @@ public class JsonHelper {
             try {
                 value = method.invoke(obj);
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                // logger.error(ex.getMessage());
             }
 
             if (!allowNullsBlanks && value == null) {
