@@ -523,7 +523,7 @@ public class JsonHelper {
             } else if (value instanceof Boolean) {
                 json.put(attr, (Boolean) value);
             } else if (value instanceof Enum) {
-                json.put(attr, getEnumValue((Enum) value));
+                json.set(attr, getJsonEnum((Enum) value));
             } else {
                 json.put(attr, value.toString());
             }
@@ -577,10 +577,39 @@ public class JsonHelper {
         } else if (value instanceof Boolean) {
             json.put(attr, (Boolean) value);
         } else if (value instanceof Enum) {
-            json.put(attr, getEnumValue((Enum) value));
+            json.put(attr, getJsonEnum((Enum) value));
         } else {
             json.put(attr, value.toString());
         }
+    }
+
+    private static ObjectNode getJsonEnum(Enum enumValue) {
+        ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
+        if (enumValue == null) {
+            return jsonEnum;
+        }
+        Class clazz = enumValue.getClass();
+        Method methodValue = null;
+        Method methodName = null;
+        try {
+            methodValue = clazz.getMethod("getValue");
+            methodName = clazz.getMethod("name");
+        } catch (Exception ex) {
+            return jsonEnum;
+        }
+        String value = "";
+        String name = "";
+        try {
+            value = (String) methodValue.invoke(enumValue);
+            name = (String) methodName.invoke(enumValue);
+        } catch (Exception ex) {
+            return jsonEnum;
+        }
+
+        jsonEnum.put("name", name);
+        jsonEnum.put("value", value);
+
+        return jsonEnum;
     }
 
     private static String getEnumValue(Enum enumValue) {
