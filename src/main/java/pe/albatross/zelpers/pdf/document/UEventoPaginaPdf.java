@@ -179,7 +179,7 @@ public class UEventoPaginaPdf extends PdfPageEventHelper {
                 }
                 table.addCell(cell);
 
-                cell = new PdfPCell(new Phrase("admision@lamolina.edu.pe    wwww.lamolina.edu.pe/admision    www.carrerasqueapasionan.pe", font));
+                cell = new PdfPCell(new Phrase("admision@lamolina.edu.pe    sip.lamolina.edu.pe    admision.lamolina.edu.pe", font));
                 cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
                 cell.setBorder(PdfPCell.NO_BORDER);
                 table.addCell(cell);
