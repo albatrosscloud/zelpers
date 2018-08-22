@@ -523,7 +523,7 @@ public class JsonHelper {
             } else if (value instanceof Boolean) {
                 json.put(attr, (Boolean) value);
             } else if (value instanceof Enum) {
-                json.set(attr, getJsonEnum((Enum) value));
+                setJsonEnum(json, attr, (Enum) value, allowNullsBlanks);
             } else {
                 json.put(attr, value.toString());
             }
@@ -577,39 +577,57 @@ public class JsonHelper {
         } else if (value instanceof Boolean) {
             json.put(attr, (Boolean) value);
         } else if (value instanceof Enum) {
-            json.put(attr, getJsonEnum((Enum) value));
+            setJsonEnum(json, attr, (Enum) value, allowNullsBlanks);
         } else {
             json.put(attr, value.toString());
         }
     }
 
-    private static ObjectNode getJsonEnum(Enum enumValue) {
+    private static void setJsonEnum(ObjectNode json, String attr, Enum enumValue, boolean allowNullsBlanks) {
         ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
         if (enumValue == null) {
-            return jsonEnum;
+            return;
         }
+
         Class clazz = enumValue.getClass();
         Method methodValue = null;
         Method methodName = null;
+
         try {
             methodValue = clazz.getMethod("getValue");
             methodName = clazz.getMethod("name");
         } catch (Exception ex) {
-            return jsonEnum;
+            if (allowNullsBlanks) {
+                jsonEnum.put("name", "");
+                jsonEnum.put("value", "");
+                json.set(attr, jsonEnum);
+            }
+            return;
         }
-        String value = "";
         String name = "";
         try {
-            value = (String) methodValue.invoke(enumValue);
             name = (String) methodName.invoke(enumValue);
         } catch (Exception ex) {
-            return jsonEnum;
+            if (allowNullsBlanks) {
+                jsonEnum.put("name", "");
+                jsonEnum.put("value", "");
+                json.set(attr, jsonEnum);
+            }
+            return;
+        }
+
+        String value = "";
+        try {
+            value = (String) methodValue.invoke(enumValue);
+        } catch (Exception ex) {
+            jsonEnum.put("name", name);
+            json.set(attr, jsonEnum);
+            return;
         }
 
         jsonEnum.put("name", name);
         jsonEnum.put("value", value);
-
-        return jsonEnum;
+        json.set(attr, jsonEnum);
     }
 
     private static String getEnumValue(Enum enumValue) {
