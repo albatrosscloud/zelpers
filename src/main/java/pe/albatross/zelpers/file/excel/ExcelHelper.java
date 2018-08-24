@@ -214,6 +214,16 @@ public class ExcelHelper {
             cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(valor);
         }
+    }
+
+    public void replaceValWrapText(int nroRow, int nroCell, String valor) {
+        Cell cell = findCell(nroRow, nroCell);
+        if (valor == null) {
+            cell.setCellType(Cell.CELL_TYPE_BLANK);
+        } else {
+            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellValue(valor);
+        }
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         cellStyle.setWrapText(true);
         cell.setCellStyle(cellStyle);
