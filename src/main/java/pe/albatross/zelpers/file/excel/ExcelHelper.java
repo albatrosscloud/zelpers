@@ -122,11 +122,7 @@ public class ExcelHelper {
         CellStyle cellStyle = cell.getCellStyle();
 
         CellStyle newCellStyle = workBook.createCellStyle();
-        newCellStyle.setBorderBottom(cellStyle.getBorderBottom());
-        newCellStyle.setBorderLeft(cellStyle.getBorderLeft());
-        newCellStyle.setBorderRight(cellStyle.getBorderRight());
-        newCellStyle.setBorderTop(cellStyle.getBorderTop());
-
+        newCellStyle.cloneStyleFrom(cellStyle);
         return newCellStyle;
     }
 
@@ -218,6 +214,19 @@ public class ExcelHelper {
             cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(valor);
         }
+    }
+
+    public void replaceValWrapText(int nroRow, int nroCell, String valor) {
+        Cell cell = findCell(nroRow, nroCell);
+        if (valor == null) {
+            cell.setCellType(Cell.CELL_TYPE_BLANK);
+        } else {
+            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellValue(valor);
+        }
+        CellStyle cellStyle = getCellStyle(nroRow, nroCell);
+        cellStyle.setWrapText(true);
+        cell.setCellStyle(cellStyle);
     }
 
     public void replaceVal(int nroRow, int nroCell, String valor, String formato) {
