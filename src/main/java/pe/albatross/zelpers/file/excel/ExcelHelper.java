@@ -3,6 +3,7 @@ package pe.albatross.zelpers.file.excel;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -22,6 +23,16 @@ public class ExcelHelper {
     public ExcelHelper(Sheet sheet, Workbook workBook) {
         this.sheet = sheet;
         this.workBook = workBook;
+    }
+
+    public static String getCellStringValue(Row row, int nroCol) {
+        Cell cell = row.getCell(nroCol);
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+        return dato;
     }
 
     public static Cell findCell(Sheet sheet, int nroRow, int nroCell) {
@@ -224,6 +235,7 @@ public class ExcelHelper {
             cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(valor);
         }
+        cell.setCellType(Cell.CELL_TYPE_STRING);
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         cellStyle.setWrapText(true);
         cell.setCellStyle(cellStyle);
@@ -304,6 +316,19 @@ public class ExcelHelper {
 
     public void setWorkBook(Workbook workBook) {
         this.workBook = workBook;
+    }
+
+    public static String getColLetterByColNum(int col) {
+        String columnLetter = "";
+        try {
+            columnLetter = CellReference.convertNumToColString(col);
+        } catch (Exception e) {
+        }
+        try {
+            columnLetter = org.apache.poi.ss.util.CellReference.convertNumToColString(col);
+        } catch (Exception e) {
+        }
+        return columnLetter;
     }
 
 }
