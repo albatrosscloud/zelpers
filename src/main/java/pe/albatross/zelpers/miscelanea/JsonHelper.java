@@ -375,7 +375,7 @@ public class JsonHelper {
                 }
 
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                //logger.error(ex.getMessage());
             }
         }
 
