@@ -589,63 +589,96 @@ public class JsonHelper {
             return;
         }
 
+        boolean error = false;
         Class clazz = enumValue.getClass();
-        Method methodValue = null;
         Method methodName = null;
-
         try {
-            methodValue = clazz.getMethod("getValue");
             methodName = clazz.getMethod("name");
         } catch (Exception ex) {
-            if (allowNullsBlanks) {
-                jsonEnum.put("name", "");
-                jsonEnum.put("value", "");
-                json.set(attr, jsonEnum);
-            }
-            return;
+            error = true;
         }
-        String name = "";
-        try {
-            name = (String) methodName.invoke(enumValue);
-        } catch (Exception ex) {
-            if (allowNullsBlanks) {
-                jsonEnum.put("name", "");
-                jsonEnum.put("value", "");
-                json.set(attr, jsonEnum);
+        if (!error) {
+            String name = "";
+            try {
+                name = (String) methodName.invoke(enumValue);
+            } catch (Exception ex) {
+                error = true;
             }
-            return;
+            if (!error) {
+                jsonEnum.put("name", name);
+            }
         }
 
-        String value = "";
-        try {
-            value = (String) methodValue.invoke(enumValue);
-        } catch (Exception ex) {
-            jsonEnum.put("name", name);
-            json.set(attr, jsonEnum);
-            return;
+        Method[] mths = clazz.getDeclaredMethods();
+        for (Method m : mths) {
+            if (!(!m.isSynthetic() && m.getName().startsWith("get") && m.getName().length() > 3)) {
+                continue;
+            }
+
+            if (!TIPOS_DATOS.contains(m.getReturnType())) {
+                continue;
+            }
+
+            String attrEnum = getFieldEnum(m.getName(), clazz);
+            if (attrEnum == null) {
+                continue;
+            }
+
+            Object value = null;
+            try {
+                value = m.invoke(enumValue);
+            } catch (Exception ex) {
+                continue;
+            }
+
+            if (value == null) {
+                if (allowNullsBlanks) {
+                    jsonEnum.put(attrEnum, "");
+                }
+            } else if (value instanceof Date) {
+                jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy"));
+            } else if (value instanceof Time) {
+                jsonEnum.put(attrEnum, ((Time) value).getTime());
+            } else if (value instanceof Timestamp) {
+                jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+            } else if (value instanceof Integer) {
+                jsonEnum.put(attrEnum, (Integer) value);
+            } else if (value instanceof Double) {
+                jsonEnum.put(attrEnum, (Double) value);
+            } else if (value instanceof Float) {
+                jsonEnum.put(attrEnum, (Float) value);
+            } else if (value instanceof Long) {
+                jsonEnum.put(attrEnum, (Long) value);
+            } else if (value instanceof BigDecimal) {
+                jsonEnum.put(attrEnum, (BigDecimal) value);
+            } else if (value instanceof Character) {
+                jsonEnum.put(attrEnum, (Character) value);
+            } else if (value instanceof String) {
+                jsonEnum.put(attrEnum, (String) value);
+            } else if (value instanceof Boolean) {
+                jsonEnum.put(attrEnum, (Boolean) value);
+            } else {
+                jsonEnum.put(attrEnum, value.toString());
+            }
+
         }
 
-        jsonEnum.put("name", name);
-        jsonEnum.put("value", value);
         json.set(attr, jsonEnum);
     }
 
-    private static String getEnumValue(Enum enumValue) {
-        if (enumValue == null) {
-            return "";
+    private static String getFieldEnum(String method, Class<?> c) {
+        Field[] flds = c.getDeclaredFields();
+        for (Field f : flds) {
+            if (f.isEnumConstant()) {
+            } else {
+                String field = f.getName();
+                String met = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
+                if (met.equals(method)) {
+                    return f.getName();
+                }
+            }
         }
-        Class clazz = enumValue.getClass();
-        Method method = null;
-        try {
-            method = clazz.getMethod("getValue");
-        } catch (Exception ex) {
-        }
-        String value = "";
-        try {
-            value = (String) method.invoke(enumValue);
-        } catch (Exception ex) {
-        }
-        return value;
+        return null;
     }
 
     private static String getDateValue(Class objectClazz, String attr, Date date) {
