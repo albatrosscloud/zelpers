@@ -17,6 +17,13 @@ import org.scribe.oauth.OAuthService;
 import org.scribe.utils.OAuthEncoder;
 import org.scribe.utils.Preconditions;
 
+/**
+ * API creado en el 2005
+ * Error en actualizaciones recientes de Google
+ * Reemplazar por ejemplo en Repositorio de Scribe
+ * https://github.com/scribejava/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/Google20Example.java
+ */
+@Deprecated
 public class Google2Api extends DefaultApi20 {
 
     private static final String AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=%s&redirect_uri=%s";
