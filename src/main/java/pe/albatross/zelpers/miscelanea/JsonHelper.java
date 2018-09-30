@@ -712,16 +712,12 @@ public class JsonHelper {
 
             ObjectNode jsonAttr = new ObjectNode(JsonNodeFactory.instance);
             jsonAttr.put("name", obj.toString());
-            System.out.println(">>> " + obj.toString());
 
             for (Method method : obj.getClass().getDeclaredMethods()) {
                 try {
-                    System.out.println(method.getName());
                     if (!(method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0)) {
-                        System.out.println("\tNo se considera");
                         continue;
                     }
-                    System.out.println("\tSacando su return value");
                     Object value = method.invoke(obj);
                     String attrEnum = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
 
