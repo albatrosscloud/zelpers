@@ -1,5 +1,7 @@
 package pe.albatross.zelpers.miscelanea;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -64,6 +66,10 @@ public class NumberFormat {
     public static String notaDecimalXDecimals(Object value, int decimales) {
         if (value == null) {
             return null;
+        }
+
+        if (value instanceof BigDecimal) {
+            value = ((BigDecimal) value).setScale(decimales, RoundingMode.DOWN);
         }
 
         String cod = NumberFormat.codigo(0, decimales);

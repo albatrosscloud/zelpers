@@ -712,16 +712,46 @@ public class JsonHelper {
 
             ObjectNode jsonAttr = new ObjectNode(JsonNodeFactory.instance);
             jsonAttr.put("name", obj.toString());
+            System.out.println(">>> " + obj.toString());
 
             for (Method method : obj.getClass().getDeclaredMethods()) {
                 try {
+                    System.out.println(method.getName());
                     if (!(method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0)) {
+                        System.out.println("\tNo se considera");
                         continue;
                     }
-                    Object returnObject = method.invoke(obj);
-                    String attributeName = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
+                    System.out.println("\tSacando su return value");
+                    Object value = method.invoke(obj);
+                    String attrEnum = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
 
-                    jsonAttr.put(attributeName, returnObject.toString());
+                    if (value == null) {
+                        jsonAttr.put(attrEnum, "");
+                    } else if (value instanceof Date) {
+                        jsonAttr.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy"));
+                    } else if (value instanceof Time) {
+                        jsonAttr.put(attrEnum, ((Time) value).getTime());
+                    } else if (value instanceof Timestamp) {
+                        jsonAttr.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+                    } else if (value instanceof Integer) {
+                        jsonAttr.put(attrEnum, (Integer) value);
+                    } else if (value instanceof Double) {
+                        jsonAttr.put(attrEnum, (Double) value);
+                    } else if (value instanceof Float) {
+                        jsonAttr.put(attrEnum, (Float) value);
+                    } else if (value instanceof Long) {
+                        jsonAttr.put(attrEnum, (Long) value);
+                    } else if (value instanceof BigDecimal) {
+                        jsonAttr.put(attrEnum, (BigDecimal) value);
+                    } else if (value instanceof Character) {
+                        jsonAttr.put(attrEnum, (Character) value);
+                    } else if (value instanceof String) {
+                        jsonAttr.put(attrEnum, (String) value);
+                    } else if (value instanceof Boolean) {
+                        jsonAttr.put(attrEnum, (Boolean) value);
+                    } else {
+                        jsonAttr.put(attrEnum, value.toString());
+                    }
 
                 } catch (IllegalAccessException
                         | IllegalArgumentException
