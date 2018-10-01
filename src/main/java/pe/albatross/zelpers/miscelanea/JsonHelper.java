@@ -704,64 +704,95 @@ public class JsonHelper {
         return fecha.replaceAll("00:00:00", "").trim();
     }
 
-    public static ObjectNode enumToJson(Object[] objects) {
+    public static ArrayNode enumToJson(Enum[] enumValues) {
 
-        ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        for (Object obj : objects) {
+        for (Enum enumValue : enumValues) {
 
-            ObjectNode jsonAttr = new ObjectNode(JsonNodeFactory.instance);
-            jsonAttr.put("name", obj.toString());
-
-            for (Method method : obj.getClass().getDeclaredMethods()) {
+            ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
+            boolean error = false;
+            Class clazz = enumValue.getClass();
+            Method methodName = null;
+            try {
+                methodName = clazz.getMethod("name");
+            } catch (Exception ex) {
+                error = true;
+            }
+            if (!error) {
+                String name = "";
                 try {
-                    if (!(method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0)) {
-                        continue;
-                    }
-                    Object value = method.invoke(obj);
-                    String attrEnum = Introspector.decapitalize(method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
-
-                    if (value == null) {
-                        jsonAttr.put(attrEnum, "");
-                    } else if (value instanceof Date) {
-                        jsonAttr.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy"));
-                    } else if (value instanceof Time) {
-                        jsonAttr.put(attrEnum, ((Time) value).getTime());
-                    } else if (value instanceof Timestamp) {
-                        jsonAttr.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
-                    } else if (value instanceof Integer) {
-                        jsonAttr.put(attrEnum, (Integer) value);
-                    } else if (value instanceof Double) {
-                        jsonAttr.put(attrEnum, (Double) value);
-                    } else if (value instanceof Float) {
-                        jsonAttr.put(attrEnum, (Float) value);
-                    } else if (value instanceof Long) {
-                        jsonAttr.put(attrEnum, (Long) value);
-                    } else if (value instanceof BigDecimal) {
-                        jsonAttr.put(attrEnum, (BigDecimal) value);
-                    } else if (value instanceof Character) {
-                        jsonAttr.put(attrEnum, (Character) value);
-                    } else if (value instanceof String) {
-                        jsonAttr.put(attrEnum, (String) value);
-                    } else if (value instanceof Boolean) {
-                        jsonAttr.put(attrEnum, (Boolean) value);
-                    } else {
-                        jsonAttr.put(attrEnum, value.toString());
-                    }
-
-                } catch (IllegalAccessException
-                        | IllegalArgumentException
-                        | InvocationTargetException e) {
-                    logger.info(e.getLocalizedMessage());
-
-                    logger.debug("Error", e);
+                    name = (String) methodName.invoke(enumValue);
+                } catch (Exception ex) {
+                    error = true;
+                }
+                if (!error) {
+                    jsonEnum.put("name", name);
                 }
             }
 
-            jsonEnum.set(obj.toString(), jsonAttr);
+            Method[] mths = clazz.getDeclaredMethods();
+            for (Method m : mths) {
+                if (!(!m.isSynthetic() && m.getName().startsWith("get") && m.getName().length() > 3)) {
+                    continue;
+                }
+
+                String attrEnum = getFieldEnum(m.getName(), clazz);
+                if (attrEnum == null) {
+                    continue;
+                }
+
+                Object value = null;
+                try {
+                    value = m.invoke(enumValue);
+                } catch (Exception ex) {
+                    continue;
+                }
+
+                System.out.println(m.getReturnType().getName());
+                if (value instanceof Enum) {
+                    System.out.println(m.getName());
+                    System.out.println("ES ENUM");
+                } else if (!TIPOS_DATOS.contains(m.getReturnType())) {
+                    continue;
+                }
+
+                if (value == null) {
+                    jsonEnum.put(attrEnum, "");
+                } else if (value instanceof Date) {
+                    jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy"));
+                } else if (value instanceof Time) {
+                    jsonEnum.put(attrEnum, ((Time) value).getTime());
+                } else if (value instanceof Timestamp) {
+                    jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+                } else if (value instanceof Integer) {
+                    jsonEnum.put(attrEnum, (Integer) value);
+                } else if (value instanceof Double) {
+                    jsonEnum.put(attrEnum, (Double) value);
+                } else if (value instanceof Float) {
+                    jsonEnum.put(attrEnum, (Float) value);
+                } else if (value instanceof Long) {
+                    jsonEnum.put(attrEnum, (Long) value);
+                } else if (value instanceof BigDecimal) {
+                    jsonEnum.put(attrEnum, (BigDecimal) value);
+                } else if (value instanceof Character) {
+                    jsonEnum.put(attrEnum, (Character) value);
+                } else if (value instanceof String) {
+                    jsonEnum.put(attrEnum, (String) value);
+                } else if (value instanceof Boolean) {
+                    jsonEnum.put(attrEnum, (Boolean) value);
+                } else if (value instanceof Enum) {
+                    setJsonEnum(jsonEnum, attrEnum, (Enum) value, true);
+                } else {
+                    jsonEnum.put(attrEnum, value.toString());
+                }
+
+            }
+
+            array.add(jsonEnum);
         }
 
-        return jsonEnum;
+        return array;
     }
 
 }
