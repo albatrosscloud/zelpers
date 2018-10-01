@@ -749,10 +749,7 @@ public class JsonHelper {
                     continue;
                 }
 
-                System.out.println(m.getReturnType().getName());
                 if (value instanceof Enum) {
-                    System.out.println(m.getName());
-                    System.out.println("ES ENUM");
                 } else if (!TIPOS_DATOS.contains(m.getReturnType())) {
                     continue;
                 }
