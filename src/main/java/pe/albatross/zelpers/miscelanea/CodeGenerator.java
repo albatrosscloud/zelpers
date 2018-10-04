@@ -57,8 +57,8 @@ public class CodeGenerator {
             return NumberFormat.codigo(i, 3, '0');
         }
         int r = i % 100;
-        int q = cociente(0, i + 1, 100);
-        String le = Character.toString((char) (64 + q));
+        int q = cociente(0, i -1000, 100);
+        String le = Character.toString((char) (65 + q));
         return le + NumberFormat.codigo(r, 2, '0');
     }
 
