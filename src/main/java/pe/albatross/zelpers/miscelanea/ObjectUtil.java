@@ -296,7 +296,7 @@ public class ObjectUtil {
         int i = 0;
         for (String atributo : atributos) {
             try {
-                i += compararAtributos(obtenerCampo(obj1, atributo), obtenerCampo(obj2, atributo));
+                i += compararAtributos(getParentTree(obj1, atributo), getParentTree(obj2, atributo));
             } catch (Exception ex) {
                 logger.debug(ex.getLocalizedMessage());
             }
@@ -325,6 +325,14 @@ public class ObjectUtil {
             if (!attr1.getClass().getSimpleName().equals(attr2.getClass().getSimpleName())) {
                 return 1;
             }
+        }
+
+        if (!TYPICAL_CLASSES.contains(attr1.getClass())) {
+            throw new PhobosException("Solo se puede comparar los atributos básicos");
+        }
+
+        if (!TYPICAL_CLASSES.contains(attr2.getClass())) {
+            throw new PhobosException("Solo se puede comparar los atributos básicos");
         }
 
         if (attr1 instanceof BigDecimal) {
