@@ -473,7 +473,7 @@ public class JsonHelper {
 
     private static void putAllAttr(ObjectNode json, Object obj, Method[] methods, Class objectClass, boolean allowNullsBlanks) {
         for (Method method : methods) {
-            if (!(method.getName().startsWith("get") || method.getName().startsWith("is"))) {
+            if (!(method.getName().startsWith("get") || method.getName().startsWith("is") || method.getName().startsWith("es"))) {
                 continue;
             }
 

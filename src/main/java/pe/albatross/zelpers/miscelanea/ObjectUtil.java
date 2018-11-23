@@ -114,6 +114,8 @@ public class ObjectUtil {
         sbMetodoGet.append(WordUtils.capitalize(atributo));
         StringBuilder sbMetodoIs = new StringBuilder("is");
         sbMetodoIs.append(WordUtils.capitalize(atributo));
+        StringBuilder sbMetodoEs = new StringBuilder("es");
+        sbMetodoEs.append(WordUtils.capitalize(atributo));
 
         for (Method metodoTmp : obj.getClass().getMethods()) {
             if (sbMetodoGet.toString().equals(metodoTmp.getName())) {
