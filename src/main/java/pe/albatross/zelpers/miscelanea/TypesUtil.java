@@ -387,4 +387,14 @@ public class TypesUtil {
         return inspector;
     }
 
+    public static void delay(long mseg) {
+        long t1 = System.currentTimeMillis();
+        for (;;) {
+            long t2 = System.currentTimeMillis();
+            if (t2 - t1 > mseg) {
+                break;
+            }
+        }
+    }
+
 }
