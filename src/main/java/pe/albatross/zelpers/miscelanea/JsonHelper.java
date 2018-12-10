@@ -1,16 +1,15 @@
 package pe.albatross.zelpers.miscelanea;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.Introspector;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Time;
@@ -299,11 +298,13 @@ public class JsonHelper {
         try {
 
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            
             Object object = (Object) mapper.readValue(json, clazz);
             return object;
 
         } catch (IOException ex) {
-            logger.debug("Error al Deserializar/Unmarshall");
+            logger.debug("Error al Deserializar/Unmarshall {}", ex.getMessage());
             return null;
         }
 
