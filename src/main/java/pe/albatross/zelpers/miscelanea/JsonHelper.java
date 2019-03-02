@@ -299,12 +299,12 @@ public class JsonHelper {
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            
+
             Object object = (Object) mapper.readValue(json, clazz);
             return object;
 
         } catch (IOException ex) {
-            logger.debug("Error al Deserializar/Unmarshall {}", ex.getMessage());
+            logger.debug("Error al Deserializar/Unmarshall {}", ex.getLocalizedMessage());
             return null;
         }
 
