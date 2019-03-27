@@ -397,6 +397,14 @@ public class TypesUtil {
         }
     }
 
+    public static List getListNotNull(List list) {
+        if (list == null) {
+            return new ArrayList();
+            
+        }
+        return list;
+    }
+
     public String capitalizeWord(String str) {
         if (str == null || str.isEmpty()) {
             return str;
