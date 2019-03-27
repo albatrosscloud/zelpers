@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,9 +201,7 @@ public class TypesUtil {
     }
 
     public static Integer getRandom() {
-
         return new Random().nextInt(900000) + 100000;
-
     }
 
     public static String toMD5(String pass) throws PhobosException {
@@ -397,10 +396,9 @@ public class TypesUtil {
         }
     }
 
-    public static List getListNotNull(List list) {
+    public List getListNotNull(List list) {
         if (list == null) {
             return new ArrayList();
-            
         }
         return list;
     }
