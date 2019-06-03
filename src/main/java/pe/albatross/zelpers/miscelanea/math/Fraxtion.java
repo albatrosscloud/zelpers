@@ -191,9 +191,34 @@ public class Fraxtion {
     @Override
     public String toString() {
         if (this.divisor.compareTo(BigDecimal.ONE) == 0) {
-            return this.dividendo.stripTrailingZeros().toString();
+            return clearZeros(dividendo);
         }
-        return this.dividendo.stripTrailingZeros() + "/" + this.divisor.stripTrailingZeros();
+        return clearZeros(dividendo) + "/" + clearZeros(divisor);
+    }
+
+    private String clearZeros(BigDecimal val) {
+        String number = val.toPlainString();
+        if (number.indexOf(".") == -1) {
+            return number;
+        }
+
+        String entero = number.split("\\.")[0];
+        String dec = number.split("\\.")[1];
+        dec = dec.replaceFirst("^0+(?!$)", "");
+        if (dec.equals("0")) {
+            return entero;
+        }
+
+        dec = number.split("\\.")[1];
+        dec = clearRightZeros(dec);
+        return entero + "." + dec;
+    }
+
+    private String clearRightZeros(String number) {
+        if (number.endsWith("0")) {
+            return clearRightZeros(number.substring(0, number.length() - 2));
+        }
+        return number;
     }
 
     public static class OrdenReverso implements Comparator<Fraxtion> {
