@@ -4,7 +4,7 @@
 
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.1.71</version>
+    <version>0.1.72</version>
 
     <packaging>jar</packaging>
 
@@ -110,6 +110,14 @@
             <artifactId>xmlworker</artifactId>
             <version>5.5.8</version>
         </dependency>
+        
+        
+        <dependency>
+            <groupId>org.pacesys</groupId>
+            <artifactId>openstack4j</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
 
     </dependencies>
 
