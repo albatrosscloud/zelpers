@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openstack4j.api.OSClient.OSClientV3;
@@ -15,6 +16,8 @@ import org.openstack4j.model.common.Payloads;
 import org.openstack4j.model.storage.object.SwiftObject;
 import org.openstack4j.model.storage.object.options.ObjectListOptions;
 import org.openstack4j.model.storage.object.options.ObjectPutOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -28,6 +31,8 @@ public class SwiftServiceImp implements SwiftService {
 
     @Autowired
     OpenStackCredentials credentials;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String DELIMITER = "/";
 
@@ -112,6 +117,23 @@ public class SwiftServiceImp implements SwiftService {
         DLPayload payload = object.download();
 
         return payload.getInputStream();
+    }
+
+    @Async
+    @Override
+    public void downloadFile(String bucket, String path, String pathLocal) {
+        logger.info("Download {} {}", bucket, path);
+
+        InputStream in = this.getFile(bucket, path);
+
+        File targetFile = new File(pathLocal);
+        try {
+            FileUtils.copyInputStreamToFile(in, targetFile);
+
+        } catch (Exception e) {
+            logger.debug(e.getLocalizedMessage(), e);
+            e.printStackTrace();
+        }
     }
 
     @Override

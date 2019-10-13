@@ -17,8 +17,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -33,6 +36,8 @@ public class S3ServiceImp implements S3Service {
     BasicAWSCredentials awsCredentials;
 
     private static final String DELIMITER = "/";
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
@@ -100,6 +105,23 @@ public class S3ServiceImp implements S3Service {
         S3Object object = s3client.getObject(new GetObjectRequest(bucket, path));
 
         return object.getObjectContent();
+    }
+
+    @Async
+    @Override
+    public void downloadFile(String bucket, String path, String pathLocal) {
+        logger.info("Download {} {}", bucket, path);
+
+        InputStream in = this.getFile(bucket, path);
+
+        File targetFile = new File(pathLocal);
+        try {
+            FileUtils.copyInputStreamToFile(in, targetFile);
+
+        } catch (Exception e) {
+            logger.debug(e.getLocalizedMessage(), e);
+            e.printStackTrace();
+        }
     }
 
     @Override

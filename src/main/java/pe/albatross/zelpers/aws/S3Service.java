@@ -16,6 +16,8 @@ public interface S3Service {
     InputStream getFile(String bucket, String path);
 
     InputStream getFile(String bucket, String directory, String fileName);
+    
+    void downloadFile(String bucket, String path, String localPath);
 
     boolean doesExist(String bucket, String path);
 
