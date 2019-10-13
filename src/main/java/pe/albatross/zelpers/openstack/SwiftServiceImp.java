@@ -48,6 +48,7 @@ public class SwiftServiceImp implements SwiftService {
         }
 
         File file = new File(localDirectory + fileName);
+        logger.debug("Upload Swift {}", file.getPath());
 
         OSClientV3 osClient = credentials.autenticate();
 
@@ -122,7 +123,7 @@ public class SwiftServiceImp implements SwiftService {
     @Async
     @Override
     public void downloadFile(String bucket, String path, String pathLocal) {
-        logger.info("Download {} {}", bucket, path);
+        logger.debug("Download Swift {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
 

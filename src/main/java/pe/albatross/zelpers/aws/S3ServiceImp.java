@@ -41,7 +41,7 @@ public class S3ServiceImp implements S3Service {
 
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
-
+        
         if (!localDirectory.endsWith(DELIMITER)) {
             localDirectory += DELIMITER;
         }
@@ -51,6 +51,8 @@ public class S3ServiceImp implements S3Service {
         }
 
         File file = new File(localDirectory + fileName);
+        logger.debug("Upload S3 {} {}", file.getPath());
+        
 
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
@@ -110,7 +112,7 @@ public class S3ServiceImp implements S3Service {
     @Async
     @Override
     public void downloadFile(String bucket, String path, String pathLocal) {
-        logger.info("Download {} {}", bucket, path);
+        logger.debug("Download S3 {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
 
