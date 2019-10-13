@@ -2,6 +2,8 @@ package pe.albatross.zelpers.openstack;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import pe.albatross.zelpers.file.model.Inode;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 
 @Lazy
 @Service
@@ -32,14 +34,25 @@ public class SwiftServiceImp implements SwiftService {
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
 
+        if (!localDirectory.endsWith(DELIMITER)) {
+            localDirectory += DELIMITER;
+        }
+
+        if (!bucketDirectory.endsWith(DELIMITER)) {
+            bucketDirectory += DELIMITER;
+        }
+
         File file = new File(localDirectory + fileName);
 
         OSClientV3 osClient = credentials.autenticate();
 
         Map metadata = new HashMap();
 
+        String mime = URLConnection.guessContentTypeFromName(file.getName());
+
         if (publico) {
             metadata.put("cache-control", "max-age=604800, must-revalidate");
+            metadata.put("Content-Type", mime);
         }
 
         osClient.objectStorage()
@@ -50,6 +63,7 @@ public class SwiftServiceImp implements SwiftService {
                         Payloads.create(file),
                         ObjectPutOptions.create().path(bucketDirectory)
                                 .metadata(metadata)
+                                .contentType(mime)
                 );
     }
 
@@ -89,11 +103,14 @@ public class SwiftServiceImp implements SwiftService {
 
         OSClientV3 osClient = credentials.autenticate();
 
-        List<? extends SwiftObject> objs = osClient.objectStorage().objects().list(
-                bucket,
-                ObjectListOptions.create().path(path));
+        SwiftObject object = osClient.objectStorage().objects().get(bucket, path);
 
-        DLPayload payload = objs.get(0).download();
+        if (object == null) {
+            throw new PhobosException("Archivo no encontrado");
+        }
+
+        DLPayload payload = object.download();
+
         return payload.getInputStream();
     }
 
@@ -107,18 +124,20 @@ public class SwiftServiceImp implements SwiftService {
     public boolean doesExist(String bucket, String path) {
         OSClientV3 osClient = credentials.autenticate();
 
-        List<? extends SwiftObject> objects = osClient.objectStorage().objects().list(
-                bucket,
-                ObjectListOptions.create().path(path)
-        );
+        SwiftObject object = osClient.objectStorage().objects().get(bucket, path);
 
-        return !CollectionUtils.isEmpty(objects);
+        return object != null;
     }
 
     @Override
     public boolean createDirectory(String bucket, String directory) {
 
         OSClientV3 osClient = credentials.autenticate();
+
+        if (!directory.endsWith(DELIMITER)) {
+            directory += DELIMITER;
+        }
+
         osClient.objectStorage().containers().createPath(bucket, directory);
 
         return this.doesExist(bucket, directory);
@@ -126,7 +145,53 @@ public class SwiftServiceImp implements SwiftService {
 
     @Override
     public Inode allFile(String bucket, String directory, boolean recursive) {
-        return new Inode();
+
+        OSClientV3 osClient = credentials.autenticate();
+
+        ObjectListOptions options = ObjectListOptions.create()
+                .path(directory)
+                .delimiter('/');
+
+        if (directory.startsWith(DELIMITER)) {
+            directory = directory.substring(1);
+        }
+
+        if (!directory.endsWith(DELIMITER)) {
+            directory += DELIMITER;
+        }
+
+        if (directory.equals(DELIMITER)) {
+            directory = "";
+            options.getOptions().remove("path");
+        }
+
+        List<Inode> inodes = new ArrayList();
+
+        List<? extends SwiftObject> result = osClient.objectStorage().objects().list(
+                bucket,
+                options
+        );
+
+        for (SwiftObject object : result) {
+
+            if (object.getName().endsWith(DELIMITER)) {
+                Inode inode = this.getInodeDirectory(bucket, object.getName());
+
+                if (recursive) {
+                    inode = this.allFile(bucket, object.getName(), recursive);
+                }
+
+                inodes.add(inode);
+
+            } else {
+                inodes.add(this.getInodeFile(object));
+            }
+
+        }
+
+        Inode inode = this.getInodeDirectory(bucket, directory);
+        inode.setItems(inodes);
+        return inode;
     }
 
     private Inode getInodeDirectory(String bucket, String pathDirectory) {

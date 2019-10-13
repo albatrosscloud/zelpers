@@ -37,6 +37,14 @@ public class S3ServiceImp implements S3Service {
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
 
+        if (!localDirectory.endsWith(DELIMITER)) {
+            localDirectory += DELIMITER;
+        }
+
+        if (!bucketDirectory.endsWith(DELIMITER)) {
+            bucketDirectory += DELIMITER;
+        }
+
         File file = new File(localDirectory + fileName);
 
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
@@ -116,8 +124,11 @@ public class S3ServiceImp implements S3Service {
 
         InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
 
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
-                directory + DELIMITER, emptyContent, metadata);
+        if (!directory.endsWith(DELIMITER)) {
+            directory += DELIMITER;
+        }
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, directory, emptyContent, metadata);
 
         s3client.putObject(putObjectRequest);
 

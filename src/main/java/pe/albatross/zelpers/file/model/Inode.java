@@ -113,6 +113,14 @@ public class Inode {
         this.items = items;
     }
 
+    public boolean isDirectory() {
+        return this.type == Type.DIRECTORY;
+    }
+
+    public boolean isFile() {
+        return this.type == Type.FILE;
+    }
+
     public ObjectNode toJson() {
         ObjectNode json = JsonHelper.createJson(this, JsonNodeFactory.instance, true);
 
