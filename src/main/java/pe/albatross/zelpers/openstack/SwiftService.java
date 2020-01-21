@@ -1,9 +1,9 @@
-package pe.albatross.zelpers.aws;
+package pe.albatross.zelpers.openstack;
 
 import java.io.InputStream;
 import pe.albatross.zelpers.file.model.Inode;
 
-public interface S3Service {
+public interface SwiftService {
 
     void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico);
 
@@ -16,7 +16,7 @@ public interface S3Service {
     InputStream getFile(String bucket, String path);
 
     InputStream getFile(String bucket, String directory, String fileName);
-    
+
     void downloadFile(String bucket, String path, String localPath);
 
     boolean doesExist(String bucket, String path);

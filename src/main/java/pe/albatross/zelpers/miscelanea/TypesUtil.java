@@ -417,4 +417,11 @@ public class TypesUtil {
         return capitalizeWord.trim();
     }
 
+    public static BigDecimal ifNull(BigDecimal value, BigDecimal defecto) {
+        if (value == null) {
+            return defecto;
+        }
+        return value;
+    }
+
 }
