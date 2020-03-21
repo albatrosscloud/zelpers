@@ -15,6 +15,10 @@ public class ZipHelper {
 
     public static File compressFolder(String pathFolder) throws IOException, ZipException {
 
+        if (pathFolder.endsWith(File.separator)) {
+            pathFolder = pathFolder.substring(0, pathFolder.length() - 1);
+        }
+
         File filex = new File(pathFolder + ".zip");
         File folder = new File(pathFolder);
 
