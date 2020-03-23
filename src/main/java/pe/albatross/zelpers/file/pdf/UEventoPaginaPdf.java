@@ -1,4 +1,4 @@
-package pe.albatross.zelpers.pdf.document;
+package pe.albatross.zelpers.file.pdf;
 
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.BaseColor;
