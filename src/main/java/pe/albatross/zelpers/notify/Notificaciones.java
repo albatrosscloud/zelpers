@@ -6,10 +6,15 @@ import java.util.List;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * EVITAR USAR
+ * Sólo usar con RedirectAttributes de Spring Contraparte JS anulada para
+ * mensajes globales, el lado JS debe ser configurado manualmente
+ */
+@Deprecated
 public class Notificaciones implements Serializable {
 
     private List<Notifica> notificaciones;
-    
 
     public Notificaciones() {
         this.notificaciones = new ArrayList();

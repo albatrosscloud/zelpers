@@ -9,6 +9,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 import pe.albatross.zelpers.notify.Notifica;
 import pe.albatross.zelpers.notify.Notificaciones;
 
+/**
+ * EVITAR USAR
+ * 
+ * Preferentemente no usar try-catch en los controllers, porque los nuevos 
+ * proyetos poseen el WebsiteAdvice y este los atrapará y responderá adecuandamente.
+ */
+@Deprecated
 public class ExceptionHandler {
 
     private static final Logger logger = getLogger(ExceptionHandler.class);
