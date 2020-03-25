@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileHelper {
@@ -35,13 +38,12 @@ public class FileHelper {
 
     }
 
-    public static boolean deleteFromDisk(String absoluteName) {
-        boolean deleted = false;
-
+    public static boolean deleteFromDisk(String absoluteName) throws IOException {
+  
         File delete = new File(absoluteName);
-        deleted = delete.delete();
+        FileUtils.deleteDirectory(delete);
 
-        return deleted;
+        return true;
     }
 
     public static void createDirectory(String ruta) {
