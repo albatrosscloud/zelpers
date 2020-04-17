@@ -6,14 +6,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import pe.albatross.zelpers.file.model.Inode;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 
+@Slf4j
 public class FileHelper {
+    
+    private final static String DELIMITER = File.separator;
 
     public static boolean saveToDisk(MultipartFile file, String fileName) throws IOException {
         InputStream inputStream = null;
@@ -81,4 +91,78 @@ public class FileHelper {
         }
 
     }
+    
+    public static Inode allFile(String directory, boolean recursive) {
+
+        if (!directory.endsWith(DELIMITER)) {
+            directory += DELIMITER;
+        }
+        
+        Path rootPath = Paths.get(directory);
+
+        Inode inodeRoot = FileHelper.getInodeDirectory(rootPath, rootPath.toFile());
+        List<Inode> inodes = new ArrayList();
+        inodeRoot.setItems(inodes);
+
+        try (Stream<Path> paths = Files.list(Paths.get(directory))) {
+
+            paths.forEach(path -> {
+                
+
+                if (path.toFile().isFile()) {
+                    Inode inode = FileHelper.getInodeFile(path, path.toFile());
+                    inodes.add(inode);
+                    
+                } else {
+
+                    Inode inode = FileHelper.getInodeDirectory(path, path.toFile());
+                    
+                    if (recursive) {
+                        inode = FileHelper.allFile(inode.getPath(), recursive);
+                    }
+                    
+                    inodes.add(inode);
+                }
+            });
+
+        } catch (IOException ex) {
+            throw new PhobosException(ex);
+        }
+
+        return inodeRoot;
+    }
+
+    private static Inode getInodeDirectory(Path path, File file) {
+
+        Inode inode = new Inode();
+        inode.setType(Inode.Type.DIRECTORY);
+        inode.setPath(path.toString());
+
+        inode.setTitle(file.getName());
+        inode.setFileName(file.getName());
+
+        if (!StringUtils.isEmpty(file.getParent())) {
+            inode.setParent(FileHelper.getInodeDirectory(path.getParent(), file.getParentFile()));
+        }
+
+        return inode;
+    }
+
+    private static Inode getInodeFile(Path path, File file) {
+
+        Inode inode = new Inode();
+        inode.setType(Inode.Type.FILE);
+        inode.setPath(path.toString());
+
+        inode.setSize(file.length());
+
+        inode.setTitle(FilenameUtils.getBaseName(path.toString()));
+        inode.setFileName(FilenameUtils.getName(path.toString()));
+        inode.setExtension(FilenameUtils.getExtension(path.toString()));
+
+        return inode;
+    }
+
+    
+    
 }

@@ -1,4 +1,4 @@
-package pe.albatross.zelpers.aws;
+package pe.albatross.zelpers.cloud.storage.amazon;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -17,31 +17,33 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import pe.albatross.zelpers.cloud.credentials.S3Credentials;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
 
+@Slf4j
 @Lazy
-@Service
-public class S3ServiceImp implements S3Service {
+@Service("s3Service")
+@ConditionalOnSingleCandidate(S3Credentials.class)
+public class S3ServiceImp implements StorageService {
 
     @Autowired
     BasicAWSCredentials awsCredentials;
 
-    private static final String DELIMITER = "/";
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final String DELIMITER = File.separator;
 
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
-        
+
         if (!localDirectory.endsWith(DELIMITER)) {
             localDirectory += DELIMITER;
         }
@@ -50,9 +52,12 @@ public class S3ServiceImp implements S3Service {
             bucketDirectory += DELIMITER;
         }
 
+        if (bucketDirectory.startsWith(DELIMITER)) {
+            bucketDirectory = bucketDirectory.substring(1);
+        }
+
         File file = new File(localDirectory + fileName);
-        logger.debug("Upload S3 {} {}", file.getPath());
-        
+        log.debug("Upload S3 {}:/{}{} - {}", bucket, bucketDirectory, fileName, localDirectory);
 
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
@@ -112,7 +117,7 @@ public class S3ServiceImp implements S3Service {
     @Async
     @Override
     public void downloadFile(String bucket, String path, String pathLocal) {
-        logger.debug("Download S3 {} {}", bucket, path);
+        log.debug("Download S3 {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
 
@@ -121,7 +126,7 @@ public class S3ServiceImp implements S3Service {
             FileUtils.copyInputStreamToFile(in, targetFile);
 
         } catch (Exception e) {
-            logger.debug(e.getLocalizedMessage(), e);
+            log.debug(e.getLocalizedMessage(), e);
             e.printStackTrace();
         }
     }
@@ -152,6 +157,10 @@ public class S3ServiceImp implements S3Service {
             directory += DELIMITER;
         }
 
+        if (directory.startsWith(DELIMITER)) {
+            directory = directory.substring(1);
+        }
+
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, directory, emptyContent, metadata);
 
         s3client.putObject(putObjectRequest);
@@ -166,6 +175,10 @@ public class S3ServiceImp implements S3Service {
 
         if (!directory.endsWith(DELIMITER)) {
             directory += DELIMITER;
+        }
+
+        if (directory.startsWith(DELIMITER)) {
+            directory = directory.substring(1);
         }
 
         if (directory.equals(DELIMITER)) {

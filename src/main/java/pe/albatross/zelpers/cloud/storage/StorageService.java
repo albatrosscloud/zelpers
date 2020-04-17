@@ -1,9 +1,9 @@
-package pe.albatross.zelpers.aws;
+package pe.albatross.zelpers.cloud.storage;
 
 import java.io.InputStream;
 import pe.albatross.zelpers.file.model.Inode;
 
-public interface S3Service {
+public interface StorageService {
 
     void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico);
 

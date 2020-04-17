@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import org.springframework.util.CollectionUtils;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.json.JaneHelper;
 
 public class Inode {
 
@@ -122,20 +122,35 @@ public class Inode {
     }
 
     public ObjectNode toJson() {
-        ObjectNode json = JsonHelper.createJson(this, JsonNodeFactory.instance, true);
+
+        ObjectNode json = JaneHelper.from(this).json();
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         if (!CollectionUtils.isEmpty(this.items)) {
+
             for (Inode inode : this.getItems()) {
                 array.add(inode.toJson());
             }
-
             json.set("items", array);
         }
 
-        json.set("parent", JsonHelper.createJson(this.getParent(), JsonNodeFactory.instance, true));
+        json.set("parent", JaneHelper.from(this.getParent()).json());
 
         return json;
+    }
+
+    public String toTree() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n").append(this.getPath());
+
+        if (!CollectionUtils.isEmpty(this.items)) {
+            for (Inode inode : this.getItems()) {
+                sb.append(inode.toTree());
+            }
+        }
+
+        return sb.toString();
     }
 
 }
