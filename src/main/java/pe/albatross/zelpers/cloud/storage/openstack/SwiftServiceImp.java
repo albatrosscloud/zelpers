@@ -39,7 +39,7 @@ public class SwiftServiceImp implements StorageService {
     private static final String DELIMITER = File.separator;
 
     @Override
-    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
 
         if (!localDirectory.endsWith(DELIMITER)) {
             localDirectory += DELIMITER;
@@ -53,7 +53,14 @@ public class SwiftServiceImp implements StorageService {
         }
 
         File file = new File(localDirectory + fileName);
-        log.debug("Upload Swift {}:/{}{} - {}", bucket, bucketDirectory, fileName, localDirectory);
+        String swiftPath = bucketDirectory + fileName;
+
+        if (!replace && this.doesExist(bucket, swiftPath)) {
+            log.info("Already exists on Swsift (Use replace to force upload)");
+            return;
+        }
+
+        log.debug("Upload Swift {}:/{} - {}", bucket, swiftPath, localDirectory);
 
         OSClientV3 osClient = credentials.autenticate();
 
@@ -78,11 +85,21 @@ public class SwiftServiceImp implements StorageService {
                 );
     }
 
+    @Override
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico);
+    }
+
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, false);
+    }
 
-        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico);
+    @Async
+    @Override
+    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, replace);
     }
 
     @Async

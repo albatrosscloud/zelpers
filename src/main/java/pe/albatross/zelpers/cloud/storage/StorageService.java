@@ -5,9 +5,13 @@ import pe.albatross.zelpers.file.model.Inode;
 
 public interface StorageService {
 
-    void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico);
+    void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace);
 
     void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico);
+
+    void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace);
+
+    void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico);
 
     void deleteFile(String buket, String path);
 
@@ -16,7 +20,7 @@ public interface StorageService {
     InputStream getFile(String bucket, String path);
 
     InputStream getFile(String bucket, String directory, String fileName);
-    
+
     void downloadFile(String bucket, String path, String localPath);
 
     boolean doesExist(String bucket, String path);
