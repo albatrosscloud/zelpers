@@ -67,7 +67,7 @@ public class SwiftServiceImp implements StorageService {
         OSClientV3 osClient = credentials.autenticate();
 
         Map metadata = new HashMap();
-        String mime= MimeTypes.OCTET_STREAM;
+        String mime = MimeTypes.OCTET_STREAM;
 
         try {
             Tika tika = new Tika();
@@ -96,13 +96,13 @@ public class SwiftServiceImp implements StorageService {
 
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
-        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico);
+        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
-        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, false);
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async

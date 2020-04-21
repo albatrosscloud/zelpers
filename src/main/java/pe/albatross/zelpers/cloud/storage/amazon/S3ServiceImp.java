@@ -87,14 +87,14 @@ public class S3ServiceImp implements StorageService {
     @Override
     public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
 
-        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico, false);
+        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
 
-        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, false);
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async
