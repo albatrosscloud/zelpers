@@ -2,8 +2,8 @@ package pe.albatross.zelpers.cloud.storage.openstack;
 
 import pe.albatross.zelpers.cloud.credentials.OpenStackCredentials;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.DLPayload;
 import org.openstack4j.model.common.Payloads;
@@ -65,8 +67,15 @@ public class SwiftServiceImp implements StorageService {
         OSClientV3 osClient = credentials.autenticate();
 
         Map metadata = new HashMap();
+        String mime= MimeTypes.OCTET_STREAM;
 
-        String mime = URLConnection.guessContentTypeFromName(file.getName());
+        try {
+            Tika tika = new Tika();
+            mime = tika.detect(file);
+
+        } catch (IOException ex) {
+            log.error("Error al Detectar Tipo", ex);
+        }
 
         if (publico) {
             metadata.put("cache-control", "max-age=604800, must-revalidate");

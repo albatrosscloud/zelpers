@@ -13,6 +13,10 @@ public class PhobosException extends RuntimeException {
         super(msg);
     }
 
+    public PhobosException(String msg, Object... args) {
+        super(String.format(msg, args));
+    }
+
     public PhobosException(String message, Exception ex) {
         super(message, ex);
     }
