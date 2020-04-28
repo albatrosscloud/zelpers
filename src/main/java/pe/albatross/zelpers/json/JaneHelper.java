@@ -46,18 +46,18 @@ public class JaneHelper {
     }
 
     public JaneHelper join(String parent) {
-        return join(parent, this.allowNullsBlanks, "*");
+        return join(parent, "*", false);
     }
 
-    public JaneHelper join(String parent, String attrObject) {
-        return join(parent, this.allowNullsBlanks, attrObject);
+    public JaneHelper join(String parent, String fields) {
+        return join(parent, fields, false);
     }
 
-    public JaneHelper join(String parent, boolean allowNullsBlanksJoin) {
-        return join(parent, allowNullsBlanksJoin, "*");
+    public JaneHelper join(String parent, boolean attachRoot) {
+        return join(parent, "*", attachRoot);
     }
 
-    public JaneHelper join(String parentString, boolean allowNullsBlanksJoin, String fields) {
+    public JaneHelper join(String parentString, String fields, boolean attachRoot) {
         if (this.object == null) {
             return this;
         }
@@ -71,7 +71,7 @@ public class JaneHelper {
                 this.root.set(parentString, createArrayNode(parent, this.split(fields)));
 
             } else {
-                this.root.set(parentString, JsonHelper.createJson(parent, JsonNodeFactory.instance, allowNullsBlanksJoin, this.split(fields)));
+                this.root.set(parentString, JsonHelper.createJson(parent, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(fields)));
             }
             return this;
         }
