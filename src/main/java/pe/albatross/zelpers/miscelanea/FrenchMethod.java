@@ -62,7 +62,11 @@ public class FrenchMethod {
             }
 
         } else {
-            this.quota = capital.multiply(interes).multiply(unoMasInteresPowCuotas).divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCuota, RoundingMode.HALF_UP);
+            // cuota = capital * i * (1+i)^n / ((1+i)^n - 1)
+            this.quota = capital
+                    .multiply(interes)
+                    .multiply(unoMasInteresPowCuotas)
+                    .divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCuota, RoundingMode.HALF_UP);
 
             for (int i = 0; i < this.cantidadCuotas; i++) {
                 BigDecimal capitalCuota = getCapital(i + 1);
@@ -79,17 +83,23 @@ public class FrenchMethod {
 
     private BigDecimal getCapital(int nroCuota) {
         BigDecimal unoMasInteresPowNroCuotaMenosUno = oneMasInteres.pow(nroCuota - 1);
-        return capital.multiply(unoMasInteresPowCuotas.subtract(unoMasInteresPowNroCuotaMenosUno)).divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
+        return capital
+                .multiply(unoMasInteresPowCuotas.subtract(unoMasInteresPowNroCuotaMenosUno))
+                .divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
     }
 
     private BigDecimal getInteres(int nroCuota) {
         BigDecimal unoMasInteresPowNroCuotaMenosUno = oneMasInteres.pow(nroCuota - 1);
-        return capital.multiply(interes).multiply(unoMasInteresPowCuotas.subtract(unoMasInteresPowNroCuotaMenosUno)).divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
+        return capital.multiply(interes)
+                .multiply(unoMasInteresPowCuotas.subtract(unoMasInteresPowNroCuotaMenosUno))
+                .divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
     }
 
     private BigDecimal getAmortizacion(int nroCuota) {
         BigDecimal unoMasInteresPowNroCuotaMenosUno = oneMasInteres.pow(nroCuota - 1);
-        return capital.multiply(interes).multiply(unoMasInteresPowNroCuotaMenosUno).divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
+        return capital.multiply(interes)
+                .multiply(unoMasInteresPowNroCuotaMenosUno)
+                .divide(unoMasInteresPowCuotas.subtract(BigDecimal.ONE), this.redondeoCalculo, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getCapital() {
