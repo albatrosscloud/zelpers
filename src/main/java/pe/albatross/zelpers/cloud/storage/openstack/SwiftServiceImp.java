@@ -1,43 +1,47 @@
-package pe.albatross.zelpers.openstack;
+package pe.albatross.zelpers.cloud.storage.openstack;
 
+import pe.albatross.zelpers.cloud.credentials.OpenStackCredentials;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.DLPayload;
 import org.openstack4j.model.common.Payloads;
 import org.openstack4j.model.storage.object.SwiftObject;
 import org.openstack4j.model.storage.object.options.ObjectListOptions;
 import org.openstack4j.model.storage.object.options.ObjectPutOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 
+@Slf4j
 @Lazy
-@Service
-public class SwiftServiceImp implements SwiftService {
+@Service("swiftService")
+@ConditionalOnSingleCandidate(OpenStackCredentials.class)
+public class SwiftServiceImp implements StorageService {
 
     @Autowired
     OpenStackCredentials credentials;
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static final String DELIMITER = "/";
+    private static final String DELIMITER = File.separator;
 
     @Override
-    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
 
         if (!localDirectory.endsWith(DELIMITER)) {
             localDirectory += DELIMITER;
@@ -46,15 +50,32 @@ public class SwiftServiceImp implements SwiftService {
         if (!bucketDirectory.endsWith(DELIMITER)) {
             bucketDirectory += DELIMITER;
         }
+        if (bucketDirectory.startsWith(DELIMITER)) {
+            bucketDirectory = bucketDirectory.substring(1);
+        }
 
         File file = new File(localDirectory + fileName);
-        logger.debug("Upload Swift {}", file.getPath());
+        String swiftPath = bucketDirectory + fileName;
+
+        if (!replace && this.doesExist(bucket, swiftPath)) {
+            log.info("Already exists on Swsift (Use replace to force upload)");
+            return;
+        }
+
+        log.debug("Upload Swift {}:/{} - {}", bucket, swiftPath, localDirectory);
 
         OSClientV3 osClient = credentials.autenticate();
 
         Map metadata = new HashMap();
+        String mime = MimeTypes.OCTET_STREAM;
 
-        String mime = URLConnection.guessContentTypeFromName(file.getName());
+        try {
+            Tika tika = new Tika();
+            mime = tika.detect(file);
+
+        } catch (IOException ex) {
+            log.error("Error al Detectar Tipo", ex);
+        }
 
         if (publico) {
             metadata.put("cache-control", "max-age=604800, must-revalidate");
@@ -73,11 +94,21 @@ public class SwiftServiceImp implements SwiftService {
                 );
     }
 
+    @Override
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico, true);
+    }
+
     @Async
     @Override
     public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, true);
+    }
 
-        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico);
+    @Async
+    @Override
+    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
+        this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, replace);
     }
 
     @Async
@@ -123,7 +154,7 @@ public class SwiftServiceImp implements SwiftService {
     @Async
     @Override
     public void downloadFile(String bucket, String path, String pathLocal) {
-        logger.debug("Download Swift {} {}", bucket, path);
+        log.debug("Download Swift {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
 
@@ -132,7 +163,7 @@ public class SwiftServiceImp implements SwiftService {
             FileUtils.copyInputStreamToFile(in, targetFile);
 
         } catch (Exception e) {
-            logger.debug(e.getLocalizedMessage(), e);
+            log.debug(e.getLocalizedMessage(), e);
             e.printStackTrace();
         }
     }
@@ -159,6 +190,10 @@ public class SwiftServiceImp implements SwiftService {
 
         if (!directory.endsWith(DELIMITER)) {
             directory += DELIMITER;
+        }
+
+        if (directory.startsWith(DELIMITER)) {
+            directory = directory.substring(1);
         }
 
         osClient.objectStorage().containers().createPath(bucket, directory);

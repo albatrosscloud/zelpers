@@ -302,6 +302,10 @@ public class ExcelHelper {
         }
     }
 
+    public void setWidthColumn(int numberColumn, int width) {
+        sheet.setColumnWidth(numberColumn, width);
+    }
+
     public Sheet getSheet() {
         return sheet;
     }

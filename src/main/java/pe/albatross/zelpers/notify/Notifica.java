@@ -3,6 +3,12 @@ package pe.albatross.zelpers.notify;
 import java.io.Serializable;
 import javax.servlet.http.HttpSession;
 
+/**
+ * EVITAR USAR
+ * Sólo usar con RedirectAttributes de Spring Contraparte JS anulada para
+ * mensajes globales, el lado JS debe ser configurado manualmente
+ */
+@Deprecated
 public class Notifica implements Serializable {
 
     private String titulo;

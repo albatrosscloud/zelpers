@@ -29,6 +29,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * Deprecado en beficio de JaneHelper
+ * 
+ */
+@Deprecated
 public class JsonHelper {
 
     public static String TIPO_DATOS = "String_Integer_Long_BigDecimal_Float_Double_Char_Date";
