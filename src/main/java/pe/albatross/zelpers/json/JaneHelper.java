@@ -154,7 +154,7 @@ public class JaneHelper {
         return rootObject;
     }
 
-    public ArrayNode arrayJson() {
+    public ArrayNode array() {
         return rootArray;
     }
 
