@@ -227,6 +227,15 @@ public class JaneHelper {
         return this;
     }
 
+    public JaneHelper parents(String... parents) {
+
+        for (String parent : parents) {
+            join(parent, "*", false);
+        }
+        
+        return this;
+    }
+
     public JaneHelper join(String parent) {
         return join(parent, "*", false);
     }
