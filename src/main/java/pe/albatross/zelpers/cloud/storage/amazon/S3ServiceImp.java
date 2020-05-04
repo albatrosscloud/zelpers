@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.cloud.credentials.S3Credentials;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
+import pe.albatross.zelpers.miscelanea.Assert;
 
 @Slf4j
 @Lazy
@@ -59,6 +60,7 @@ public class S3ServiceImp implements StorageService {
         }
 
         File file = new File(localDirectory + fileName);
+        Assert.isTrue(file.exists(), "Archivo no existente: " + file.getPath());
 
         String s3Path = bucketDirectory + fileName;
 

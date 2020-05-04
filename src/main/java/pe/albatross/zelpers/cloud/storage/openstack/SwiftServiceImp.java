@@ -27,6 +27,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 
 @Slf4j
@@ -55,6 +56,8 @@ public class SwiftServiceImp implements StorageService {
         }
 
         File file = new File(localDirectory + fileName);
+        Assert.isTrue(file.exists(), "Archivo no existente: " + file.getPath());
+
         String swiftPath = bucketDirectory + fileName;
 
         if (!replace && this.doesExist(bucket, swiftPath)) {
