@@ -154,9 +154,8 @@ public class SwiftServiceImp implements StorageService {
         return payload.getInputStream();
     }
 
-    @Async
     @Override
-    public void downloadFile(String bucket, String path, String pathLocal) {
+    public void downloadFileSync(String bucket, String path, String pathLocal) {
         log.debug("Download Swift {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
@@ -169,6 +168,12 @@ public class SwiftServiceImp implements StorageService {
             log.debug(e.getLocalizedMessage(), e);
             e.printStackTrace();
         }
+    }
+
+    @Async
+    @Override
+    public void downloadFile(String bucket, String path, String pathLocal) {
+        this.downloadFileSync(bucket, path, pathLocal);
     }
 
     @Override

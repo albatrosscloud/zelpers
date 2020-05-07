@@ -11,11 +11,12 @@ import org.springframework.web.servlet.view.AbstractView;
 
 /*
 * https://jira.spring.io/browse/SPR-6898
-*/
-
+ */
 public abstract class AbstractPOIExcelView extends AbstractView {
 
-    /** The content type for an Excel response */
+    /**
+     * The content type for an Excel response
+     */
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final String CONTENT_TYPE_XLS = "application/vnd.ms-excel";
 
@@ -70,15 +71,11 @@ public abstract class AbstractPOIExcelView extends AbstractView {
     /**
      * Subclasses must implement this method to create an Excel HSSFWorkbook
      * document, given the model.
-     * 
-     * @param model
-     *            the model Map
-     * @param workbook
-     *            the Excel workbook to complete
-     * @param request
-     *            in case we need locale etc. Shouldn't look at attributes.
-     * @param response
-     *            in case we need to set cookies. Shouldn't write to it.
+     *
+     * @param model the model Map
+     * @param workbook the Excel workbook to complete
+     * @param request in case we need locale etc. Shouldn't look at attributes.
+     * @param response in case we need to set cookies. Shouldn't write to it.
      */
     protected abstract void buildExcelDocument(Map<String, Object> model, Workbook workbook,
             HttpServletRequest request, HttpServletResponse response) throws Exception;

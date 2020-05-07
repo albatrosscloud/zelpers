@@ -1,6 +1,10 @@
 package pe.albatross.zelpers.miscelanea;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,12 +15,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.util.DigestUtils;
 
+@Slf4j
 public class TypesUtil {
 
     public static Integer getInt(Object objValue) {
@@ -214,6 +220,19 @@ public class TypesUtil {
             throw new PhobosException(e.getMessage());
         }
 
+    }
+
+    public static String toMD5FromFile(String absolutePath) {
+        String md5 = "";
+        try (InputStream is = Files.newInputStream(Paths.get(absolutePath))) {
+
+            md5 = DigestUtils.md5DigestAsHex(is);
+
+        } catch (IOException ioe) {
+            log.error("Error al identificar MD5 de Archivo ", ioe);
+        }
+
+        return md5;
     }
 
     public static String getClean(String string) {

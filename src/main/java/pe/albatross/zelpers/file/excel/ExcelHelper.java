@@ -6,6 +6,7 @@ import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -27,7 +28,7 @@ public class ExcelHelper {
 
     public static String getCellStringValue(Row row, int nroCol) {
         Cell cell = row.getCell(nroCol);
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;
@@ -58,7 +59,7 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, Date valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
             return;
         } else {
             cell.setCellValue(valor);
@@ -71,7 +72,7 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, Integer valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -80,7 +81,7 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, Long valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -89,9 +90,9 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, String valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(valor);
         }
     }
@@ -99,7 +100,7 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, Double valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -108,7 +109,7 @@ public class ExcelHelper {
     public static void replaceVal(Sheet sheet, int nroRow, int nroCell, BigDecimal valor) {
         Cell cell = findCell(sheet, nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor.doubleValue());
         }
@@ -182,7 +183,7 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, Integer valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -191,7 +192,7 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, Integer valor, CellStyle cellStyle) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -201,7 +202,7 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, Long valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -210,7 +211,7 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, Long valor, CellStyle cellStyle) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor);
         }
@@ -220,9 +221,9 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, String valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(valor);
         }
     }
@@ -230,12 +231,12 @@ public class ExcelHelper {
     public void replaceValWrapText(int nroRow, int nroCell, String valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(valor);
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         cellStyle.setWrapText(true);
         cell.setCellStyle(cellStyle);
@@ -265,7 +266,7 @@ public class ExcelHelper {
     public void replaceVal(int nroRow, int nroCell, BigDecimal valor) {
         Cell cell = findCell(nroRow, nroCell);
         if (valor == null) {
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellType(CellType.BLANK);
         } else {
             cell.setCellValue(valor.doubleValue());
         }
@@ -278,14 +279,14 @@ public class ExcelHelper {
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         DataFormat df = workBook.createDataFormat();
         cellStyle.setDataFormat(df.getFormat(formato));
-        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        cell.setCellType(CellType.NUMERIC);
         cell.setCellStyle(cellStyle);
     }
 
     public void replaceVal(int nroRow, int nroCell, BigDecimal valor, CellStyle cellStyle) {
         Cell cell = findCell(nroRow, nroCell);
         replaceVal(nroRow, nroCell, valor);
-        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        cell.setCellType(CellType.NUMERIC);
         cell.setCellStyle(cellStyle);
     }
 

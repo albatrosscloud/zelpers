@@ -1,6 +1,5 @@
 package pe.albatross.zelpers.file.excel;
 
-import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
 public interface ExcelColors {

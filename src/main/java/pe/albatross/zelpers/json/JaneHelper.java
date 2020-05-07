@@ -232,7 +232,7 @@ public class JaneHelper {
         for (String parent : parents) {
             join(parent, "*", false);
         }
-        
+
         return this;
     }
 

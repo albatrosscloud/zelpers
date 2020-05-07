@@ -21,6 +21,8 @@ public interface StorageService {
 
     InputStream getFile(String bucket, String directory, String fileName);
 
+    void downloadFileSync(String bucket, String path, String pathLocal);
+
     void downloadFile(String bucket, String path, String localPath);
 
     boolean doesExist(String bucket, String path);

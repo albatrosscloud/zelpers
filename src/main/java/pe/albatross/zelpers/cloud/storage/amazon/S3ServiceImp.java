@@ -138,9 +138,8 @@ public class S3ServiceImp implements StorageService {
         return object.getObjectContent();
     }
 
-    @Async
     @Override
-    public void downloadFile(String bucket, String path, String pathLocal) {
+    public void downloadFileSync(String bucket, String path, String pathLocal) {
         log.debug("Download S3 {} {}", bucket, path);
 
         InputStream in = this.getFile(bucket, path);
@@ -153,6 +152,12 @@ public class S3ServiceImp implements StorageService {
             log.debug(e.getLocalizedMessage(), e);
             e.printStackTrace();
         }
+    }
+
+    @Async
+    @Override
+    public void downloadFile(String bucket, String path, String pathLocal) {
+        this.downloadFileSync(bucket, path, pathLocal);
     }
 
     @Override
