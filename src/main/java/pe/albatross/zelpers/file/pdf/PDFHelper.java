@@ -15,12 +15,12 @@ public class PDFHelper {
     /**
      *
      * Convierte archivo word en formato .docx a .pdf en el mismo directorio del
-     * archivo con el mismo nombre del archivo. 
+     * archivo con el mismo nombre del archivo.
      *
      * @param docx File Path del archivo word
-     * @return path del archivo 
+     * @return path del archivo
      */
-    public static String convertDocxToPdf(File docx) {
+    public static File convertDocxToPdf(File docx) {
         String pdf = docx.getAbsolutePath().replace(".docx", ".pdf");
         return PDFHelper.convertDocxToPdf(docx, new File(pdf));
     }
@@ -30,9 +30,9 @@ public class PDFHelper {
      *
      * @param docx File Path del archivo word
      * @param pdf File Path del archivo pdf a generar
-     * @return path del archivo 
+     * @return File with absolute Path
      */
-    public static String convertDocxToPdf(File docx, File pdf) {
+    public static File convertDocxToPdf(File docx, File pdf) {
         try {
             InputStream in = new FileInputStream(docx);
 
@@ -50,7 +50,7 @@ public class PDFHelper {
             throw new PhobosException(ex.getLocalizedMessage(), ex);
 
         } finally {
-            return pdf.getAbsolutePath();
+            return pdf;
         }
     }
 
