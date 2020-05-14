@@ -3,6 +3,8 @@ package pe.albatross.zelpers.json;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -29,7 +31,7 @@ public class JaneHelper {
 
     private static List<Class> TIPOS_DATOS
             = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class,
-                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class,
+                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class, Enum.class,
                     boolean.class, int.class, float.class, double.class);
 
     public JaneHelper() {
@@ -105,7 +107,8 @@ public class JaneHelper {
 
     private void createItemList(Object value, int loop) {
         Class clazz = value.getClass();
-        if (TIPOS_DATOS.contains(clazz)) {
+
+        if (TIPOS_DATOS.contains(clazz) || (value instanceof Enum)) {
 
             if (value instanceof Date) {
                 Date d1 = new LocalDate((Date) value).toDate();
@@ -138,7 +141,7 @@ public class JaneHelper {
             } else if (value instanceof Boolean) {
                 this.rootArray.add((Boolean) value);
             } else if (value instanceof Enum) {
-                this.rootArray.add(((Enum) value).name());
+                this.rootArray.add(createJsonEnum((Enum) value, allowNullsBlanks));
             } else {
                 this.rootArray.add(value.toString());
             }
@@ -393,6 +396,104 @@ public class JaneHelper {
 
     private String[] split(String attrs) {
         return attrs.replace(" ", "").split(",");
+    }
+
+    private static ObjectNode createJsonEnum(Enum enumValue, boolean allowNullsBlanks) {
+        ObjectNode jsonEnum = new ObjectNode(JsonNodeFactory.instance);
+        if (enumValue == null) {
+            return jsonEnum;
+        }
+
+        boolean error = false;
+        Class clazz = enumValue.getClass();
+        Method methodName = null;
+        try {
+            methodName = clazz.getMethod("name");
+        } catch (Exception ex) {
+            error = true;
+        }
+        if (!error) {
+            String name = "";
+            try {
+                name = (String) methodName.invoke(enumValue);
+            } catch (Exception ex) {
+                error = true;
+            }
+            if (!error) {
+                jsonEnum.put("name", name);
+            }
+        }
+
+        Method[] mths = clazz.getDeclaredMethods();
+        for (Method m : mths) {
+            if (!(!m.isSynthetic() && m.getName().startsWith("get") && m.getName().length() > 3)) {
+                continue;
+            }
+
+            if (!TIPOS_DATOS.contains(m.getReturnType())) {
+                continue;
+            }
+
+            String attrEnum = getFieldEnum(m.getName(), clazz);
+            if (attrEnum == null) {
+                continue;
+            }
+
+            Object value = null;
+            try {
+                value = m.invoke(enumValue);
+            } catch (Exception ex) {
+                continue;
+            }
+
+            if (value == null) {
+                if (allowNullsBlanks) {
+                    jsonEnum.put(attrEnum, "");
+                }
+            } else if (value instanceof Date) {
+                jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy"));
+            } else if (value instanceof Time) {
+                jsonEnum.put(attrEnum, ((Time) value).getTime());
+            } else if (value instanceof Timestamp) {
+                jsonEnum.put(attrEnum, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+            } else if (value instanceof Integer) {
+                jsonEnum.put(attrEnum, (Integer) value);
+            } else if (value instanceof Double) {
+                jsonEnum.put(attrEnum, (Double) value);
+            } else if (value instanceof Float) {
+                jsonEnum.put(attrEnum, (Float) value);
+            } else if (value instanceof Long) {
+                jsonEnum.put(attrEnum, (Long) value);
+            } else if (value instanceof BigDecimal) {
+                jsonEnum.put(attrEnum, (BigDecimal) value);
+            } else if (value instanceof Character) {
+                jsonEnum.put(attrEnum, (Character) value);
+            } else if (value instanceof String) {
+                jsonEnum.put(attrEnum, (String) value);
+            } else if (value instanceof Boolean) {
+                jsonEnum.put(attrEnum, (Boolean) value);
+            } else {
+                jsonEnum.put(attrEnum, value.toString());
+            }
+
+        }
+
+        return jsonEnum;
+    }
+
+    private static String getFieldEnum(String method, Class<?> c) {
+        Field[] flds = c.getDeclaredFields();
+        for (Field f : flds) {
+            if (f.isEnumConstant()) {
+            } else {
+                String field = f.getName();
+                String met = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
+                if (met.equals(method)) {
+                    return f.getName();
+                }
+            }
+        }
+        return null;
     }
 
 }
