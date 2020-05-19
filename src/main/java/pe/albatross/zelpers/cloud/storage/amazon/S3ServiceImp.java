@@ -1,10 +1,6 @@
 package pe.albatross.zelpers.cloud.storage.amazon;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -40,7 +36,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 public class S3ServiceImp implements StorageService {
 
     @Autowired
-    BasicAWSCredentials awsCredentials;
+    S3Credentials awsCredentials;
 
     private static final String DELIMITER = File.separator;
 
@@ -71,7 +67,7 @@ public class S3ServiceImp implements StorageService {
 
         log.debug("Upload S3 {}:/{} - {}", bucket, s3Path, localDirectory);
 
-        AmazonS3 s3Client = this.getAmazonS3();
+        AmazonS3 s3Client = awsCredentials.getAmazonS3();
 
         PutObjectRequest objectRequest = new PutObjectRequest(bucket, s3Path, file);
 
@@ -118,7 +114,7 @@ public class S3ServiceImp implements StorageService {
     @Override
     public void deleteFile(String buket, String path) {
 
-        AmazonS3 s3client = this.getAmazonS3();
+        AmazonS3 s3client = awsCredentials.getAmazonS3();
         s3client.deleteObject(new DeleteObjectRequest(buket, path));
     }
 
@@ -132,7 +128,7 @@ public class S3ServiceImp implements StorageService {
     @Override
     public InputStream getFile(String bucket, String path) {
 
-        AmazonS3 s3client = this.getAmazonS3();
+        AmazonS3 s3client = awsCredentials.getAmazonS3();
         S3Object object = s3client.getObject(new GetObjectRequest(bucket, path));
 
         return object.getObjectContent();
@@ -168,14 +164,14 @@ public class S3ServiceImp implements StorageService {
 
     @Override
     public boolean doesExist(String bucket, String path) {
-        AmazonS3 s3client = this.getAmazonS3();
+        AmazonS3 s3client = awsCredentials.getAmazonS3();
         return s3client.doesObjectExist(bucket, path);
     }
 
     @Override
     public boolean createDirectory(String bucket, String directory) {
 
-        AmazonS3 s3client = this.getAmazonS3();
+        AmazonS3 s3client = awsCredentials.getAmazonS3();
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(0);
@@ -200,7 +196,7 @@ public class S3ServiceImp implements StorageService {
     @Override
     public Inode allFile(String bucket, String directory, boolean recursive) {
 
-        AmazonS3 s3Client = this.getAmazonS3();
+        AmazonS3 s3Client = awsCredentials.getAmazonS3();
 
         if (!directory.endsWith(DELIMITER)) {
             directory += DELIMITER;
@@ -292,16 +288,6 @@ public class S3ServiceImp implements StorageService {
         inode.setUrl(url);
 
         return inode;
-    }
-
-    private AmazonS3 getAmazonS3() {
-
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .withRegion(Regions.DEFAULT_REGION)
-                .build();
-
-        return s3Client;
     }
 
 }
