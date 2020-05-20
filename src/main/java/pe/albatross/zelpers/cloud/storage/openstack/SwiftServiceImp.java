@@ -204,9 +204,8 @@ public class SwiftServiceImp implements StorageService {
             directory = directory.substring(1);
         }
 
-        osClient.objectStorage().containers().createPath(bucket, directory);
-
-        return this.doesExist(bucket, directory);
+        String idInode = osClient.objectStorage().containers().createPath(bucket, directory);
+        return !StringUtils.isBlank(idInode);
     }
 
     @Override
