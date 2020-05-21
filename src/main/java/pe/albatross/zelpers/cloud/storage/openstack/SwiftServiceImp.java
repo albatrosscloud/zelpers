@@ -228,6 +228,7 @@ public class SwiftServiceImp implements StorageService {
         if (directory.equals(DELIMITER)) {
             directory = "";
             options.getOptions().remove("path");
+            options.getOptions().remove("delimiter");
         }
 
         List<Inode> inodes = new ArrayList();
@@ -238,8 +239,7 @@ public class SwiftServiceImp implements StorageService {
         );
 
         for (SwiftObject object : result) {
-
-            if (object.getName().endsWith(DELIMITER)) {
+            if (object.isDirectory()) {
                 Inode inode = this.getInodeDirectory(bucket, object.getName());
 
                 if (recursive) {
