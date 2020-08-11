@@ -31,7 +31,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Deprecado en beficio de JaneHelper
- * 
+ *
  */
 @Deprecated
 public class JsonHelper {

@@ -49,7 +49,7 @@ public class FrenchMethod {
             BigDecimal resto = capital.add(BigDecimal.ZERO);
             for (int i = 1; i <= this.cantidadCuotas; i++) {
                 if (i < this.cantidadCuotas) {
-                    capitales.add(quota);
+                    capitales.add(resto.subtract(quota));
                     amortizaciones.add(quota);
                     cuotas.add(quota);
                     resto = resto.subtract(quota);
