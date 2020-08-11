@@ -134,8 +134,15 @@ public class TypesUtil {
         }
     }
 
-    public static boolean getBoolean(Object value) {
-        return ((Integer) value == 1);
+    public static Boolean getBoolean(Object value) {
+
+        try {
+            return ((Integer) value == 1);
+            
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     public static String getString(Object objValue) {

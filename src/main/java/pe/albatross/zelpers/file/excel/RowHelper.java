@@ -43,7 +43,6 @@ public class RowHelper {
                 newCell.setHyperlink(oldCell.getHyperlink());
             }
 
-            newCell.setCellType(oldCell.getCellType());
 
             switch (oldCell.getCellType()) {
                 case BLANK:
