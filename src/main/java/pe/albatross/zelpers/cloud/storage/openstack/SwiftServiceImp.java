@@ -85,7 +85,7 @@ public class SwiftServiceImp implements StorageService {
             metadata.put("Content-Type", mime);
         }
 
-        osClient.objectStorage()
+        String hashFile = osClient.objectStorage()
                 .objects()
                 .put(
                         bucket,
@@ -95,6 +95,11 @@ public class SwiftServiceImp implements StorageService {
                                 .metadata(metadata)
                                 .contentType(mime)
                 );
+
+        if (StringUtils.isEmpty(hashFile)) {
+            throw new PhobosException("Error al subir archivo al swift.");
+        }
+
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import java.io.ByteArrayInputStream;
@@ -28,6 +29,7 @@ import pe.albatross.zelpers.cloud.credentials.S3Credentials;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 
 @Slf4j
 @Lazy
@@ -78,8 +80,13 @@ public class S3ServiceImp implements StorageService {
             objectRequest.withMetadata(metadata);
             objectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
         }
+        try {
+            s3Client.putObject(objectRequest);
+            
+        } catch (Exception e) {
+            throw new PhobosException("Error al enviar a S3", e);
+        }
 
-        s3Client.putObject(objectRequest);
     }
 
     @Override
