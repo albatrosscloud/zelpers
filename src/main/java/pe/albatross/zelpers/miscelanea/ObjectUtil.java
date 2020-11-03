@@ -18,7 +18,8 @@ public class ObjectUtil {
     private static final Logger logger = LoggerFactory.getLogger(ObjectUtil.class);
 
     public static List<Class> TYPICAL_CLASSES = Arrays.asList(
-            String.class, Integer.class, Long.class, BigDecimal.class, Float.class, Double.class, Timestamp.class, Date.class
+            String.class, Integer.class, Long.class, BigDecimal.class, Float.class, Double.class, Timestamp.class,
+            Date.class, java.sql.Date.class
     );
 
     public static Object completarAtributoObjeto(Object obj, String atributo) {
