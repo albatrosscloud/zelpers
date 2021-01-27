@@ -239,6 +239,14 @@ public class JaneHelper {
         return this;
     }
 
+    public JaneHelper include(String subList) {
+        return join(subList, "*", false);
+    }
+
+    public JaneHelper include(String subList, String fields) {
+        return join(subList, fields, false);
+    }
+
     public JaneHelper join(String parent) {
         return join(parent, "*", false);
     }
