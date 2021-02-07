@@ -39,6 +39,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  *
  * @author Nimo Naamani http://duckranger.com
  */
+@Deprecated
 public class ConversationalSessionAttributeStore implements SessionAttributeStore, InitializingBean {
 
     @Autowired

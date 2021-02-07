@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.view.AbstractView;
 
+/**
+ * Spring 4 (SpringBoot 2) ya posee el Abstract para PDF
+ */
+@Deprecated
 public abstract class AbstractOnlyPdfView extends AbstractView {
 
     public AbstractOnlyPdfView() {

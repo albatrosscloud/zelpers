@@ -8,9 +8,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.servlet.view.AbstractView;
 
-
-/*
-* https://jira.spring.io/browse/SPR-6898
+/**
+ * https://jira.spring.io/browse/SPR-6898
  */
 public abstract class AbstractPOIExcelView extends AbstractView {
 

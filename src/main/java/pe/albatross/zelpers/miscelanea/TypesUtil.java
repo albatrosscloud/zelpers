@@ -138,7 +138,7 @@ public class TypesUtil {
 
         try {
             return ((Integer) value == 1);
-            
+
         } catch (Exception e) {
             return null;
         }
@@ -210,6 +210,22 @@ public class TypesUtil {
             throw new PhobosException(e.getMessage());
         }
 
+    }
+
+    public static Date getDate(String fechaString) {
+        return TypesUtil.getDate(fechaString, "dd/MM/yyyy");
+    }
+
+    public static Date getDate(String fechaString, String formato) {
+
+        try {
+
+            DateTimeFormatter dtf = DateTimeFormat.forPattern(formato);
+            return DateTime.parse(fechaString, dtf).toDate();
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static Integer getRandom() {

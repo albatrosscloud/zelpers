@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 public class DateDeserializer extends StdDeserializer<Date> {
 
@@ -24,8 +24,7 @@ public class DateDeserializer extends StdDeserializer<Date> {
     }
 
     @Override
-    public Date deserialize(
-            JsonParser jsonparser, DeserializationContext context)
+    public Date deserialize(JsonParser jsonparser, DeserializationContext context)
             throws IOException {
 
         String date = jsonparser.getText();
@@ -33,28 +32,31 @@ public class DateDeserializer extends StdDeserializer<Date> {
             return null;
         }
 
-        boolean firstFormattter = true;
         String error = null;
-        Date dateResult = null;
 
         try {
-            dateResult = formatter.parse(date);
+
+            return formatter.parse(date);
+
         } catch (ParseException e) {
-            firstFormattter = false;
-            error = e.getLocalizedMessage();
         }
-        if (!firstFormattter) {
-            error = null;
-            try {
-                dateResult = formatter2.parse(date);
-            } catch (ParseException e) {
-                error = e.getLocalizedMessage();
-            }
+
+        try {
+
+            return formatter2.parse(date);
+
+        } catch (ParseException e) {
         }
-        if (StringUtils.isNotBlank(error)) {
-            throw new RuntimeException(error);
+
+        try {
+
+            return new Date(Long.parseLong(date));
+
+        } catch (NumberFormatException e) {
         }
-        return dateResult;
+
+        
+        throw new RuntimeException(String.format("Error DateDeserializer, %s no pudo ser parseado", date));
     }
 
 }

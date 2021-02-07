@@ -6,12 +6,17 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import org.springframework.util.StringUtils;
 
 public class DateTimeDeserializer extends StdDeserializer<Date> {
 
     private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat formatter4 = new SimpleDateFormat("dd/MM/yyyy");
 
     public DateTimeDeserializer() {
         this(null);
@@ -27,32 +32,23 @@ public class DateTimeDeserializer extends StdDeserializer<Date> {
             throws IOException {
 
         String date = jsonparser.getText();
-        if (org.apache.commons.lang3.StringUtils.isEmpty(date)) {
+
+        if (StringUtils.isEmpty(date)) {
             return null;
         }
 
-        boolean firstFormattter = true;
-        String error = null;
-        Date dateResult = null;
+        List<SimpleDateFormat> formatos = Arrays.asList(formatter, formatter2, formatter3, formatter4);
 
-        try {
-            dateResult = formatter.parse(date);
-        } catch (ParseException e) {
-            firstFormattter = false;
-            error = e.getLocalizedMessage();
-        }
-        if (!firstFormattter) {
-            error = null;
+        for (SimpleDateFormat formato : formatos) {
             try {
-                dateResult = formatter2.parse(date);
+
+                return formato.parse(date);
+
             } catch (ParseException e) {
-                error = e.getLocalizedMessage();
             }
         }
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(error)) {
-            throw new RuntimeException(error);
-        }
-        return dateResult;
+
+        throw new RuntimeException(String.format("Error DateTimeDeserializer, %s no pudo ser parseado", date));
     }
 
 }

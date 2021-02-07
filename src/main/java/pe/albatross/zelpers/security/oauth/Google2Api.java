@@ -22,6 +22,7 @@ import org.scribe.utils.Preconditions;
  * Error en actualizaciones recientes de Google
  * Reemplazar por ejemplo en Repositorio de Scribe
  * https://github.com/scribejava/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/Google20Example.java
+ *  
  */
 @Deprecated
 public class Google2Api extends DefaultApi20 {

@@ -1,5 +1,9 @@
 package pe.albatross.zelpers.miscelanea;
 
+/**
+ * Reemplazar por ObjectNode o ArrayNode y controlar los errores usando Axios.
+ */
+@Deprecated
 public class JsonResponse {
 
     private Object data;
