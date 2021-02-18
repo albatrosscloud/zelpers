@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
@@ -33,6 +34,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Deprecado en beficio de JaneHelper
  *
  */
+@Slf4j
 @Deprecated
 public class JsonHelper {
 
@@ -537,8 +539,10 @@ public class JsonHelper {
 
     private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass, boolean allowNullsBlanks) {
         Method method = ObjectUtil.getMethod(obj, attr);
+
         if (method == null) {
-            throw new PhobosException("No existe el metodo GET o el metodo IS para el atributo: " + attr);
+            log.error("No existe el metodo GET o el metodo IS para el atributo: " + attr);
+            return;
         }
 
         Class methodClass = method.getReturnType();

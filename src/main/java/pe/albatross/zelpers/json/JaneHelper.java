@@ -3,6 +3,7 @@ package pe.albatross.zelpers.json;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.opensagres.xdocreport.utils.StringUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -22,27 +24,31 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 
+@Slf4j
 public class JaneHelper {
 
-    private Object object;
-    private ObjectNode rootObject;
-    private ArrayNode rootArray;
+    private Object objectOrigin;
+
+    private ObjectNode rootObjectNode;
+    private ArrayNode rootArrayNode;
+
     private Map<Integer, ObjectNode> mapNode;
     private boolean allowNullsBlanks;
 
-    private static List<Class> TIPOS_DATOS
-            = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class,
-                    BigDecimal.class, Character.class, Date.class, Timestamp.class, Boolean.class, Enum.class,
-                    boolean.class, int.class, float.class, double.class);
+    private static List<Class> TIPOS_DATOS = Arrays.asList(
+            String.class, Character.class, Boolean.class,
+            Integer.class, Long.class, Float.class, Double.class,
+            BigDecimal.class, Date.class, Timestamp.class, Enum.class,
+            boolean.class, int.class, long.class, float.class, double.class);
 
     public JaneHelper() {
         throw new PhobosException("Utilizar el método 'from()'");
     }
 
     public JaneHelper(Object object, boolean allowNulls) {
-        Assert.isNull(this.object, "El objeto inicial ya fue creado");
+        Assert.isNull(this.objectOrigin, "El objeto inicial ya fue creado");
 
-        this.object = object;
+        this.objectOrigin = object;
         this.allowNullsBlanks = allowNulls;
 
         if (object instanceof String[]) {
@@ -68,156 +74,16 @@ public class JaneHelper {
             this.generateMapNode(map);
 
         } else {
-            this.rootObject = JsonHelper.createJson(object, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
+            this.rootObjectNode = JsonHelper.createJson(object, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
         }
-    }
-
-    private void generateMapNode(Map map) {
-        this.rootObject = new ObjectNode(JsonNodeFactory.instance);
-        this.mapNode = new HashMap();
-
-        int loop = 0;
-        for (Object keyy : map.keySet()) {
-
-            Object value = map.get(keyy);
-            String key = keyy.toString();
-
-            if (TIPOS_DATOS.contains(value.getClass()) || (value instanceof Enum)) {
-
-                if (value instanceof Date) {
-                    Date d1 = new LocalDate((Date) value).toDate();
-                    Date d2 = new DateTime((Date) value).toDate();
-
-                    if (d1.getTime() == d2.getTime()) {
-                        this.rootObject.put(key, new DateTime((Date) value).toString("dd/MM/yyyy"));
-                    } else {
-                        this.rootObject.put(key, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
-                    }
-
-                } else if (value instanceof Timestamp) {
-                    this.rootObject.put(key, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
-
-                } else if (value instanceof Time) {
-                    this.rootObject.put(key, ((Time) value).getTime());
-
-                } else if (value instanceof Integer) {
-                    this.rootObject.put(key, (Integer) value);
-
-                } else if (value instanceof Double) {
-                    this.rootObject.put(key, (Double) value);
-
-                } else if (value instanceof Float) {
-                    this.rootObject.put(key, (Float) value);
-
-                } else if (value instanceof Long) {
-                    this.rootObject.put(key, (Long) value);
-
-                } else if (value instanceof BigDecimal) {
-                    this.rootObject.put(key, (BigDecimal) value);
-
-                } else if (value instanceof Character) {
-                    this.rootObject.put(key, (Character) value);
-
-                } else if (value instanceof String) {
-                    this.rootObject.put(key, (String) value);
-
-                } else if (value instanceof Boolean) {
-                    this.rootObject.put(key, (Boolean) value);
-
-                } else if (value instanceof Enum) {
-                    this.rootObject.set(key, createJsonEnum((Enum) value, allowNullsBlanks));
-
-                } else {
-                    this.rootObject.put(key, value.toString());
-                }
-
-            } else {
-                ObjectNode node = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
-                this.rootObject.set(key, node);
-                this.mapNode.put(loop, node);
-            }
-
-            loop++;
-        }
-
-    }
-
-    private void generateArrayNode(Collection collection) {
-        this.rootArray = new ArrayNode(JsonNodeFactory.instance);
-        this.mapNode = new HashMap();
-
-        int loop = 0;
-
-        for (Object value : collection) {
-            Class clazz = value.getClass();
-
-            if (TIPOS_DATOS.contains(clazz) || (value instanceof Enum)) {
-
-                if (value instanceof Date) {
-                    Date d1 = new LocalDate((Date) value).toDate();
-                    Date d2 = new DateTime((Date) value).toDate();
-
-                    if (d1.getTime() == d2.getTime()) {
-                        this.rootArray.add(new DateTime((Date) value).toString("dd/MM/yyyy"));
-                    } else {
-                        this.rootArray.add(new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
-                    }
-
-                } else if (value instanceof Timestamp) {
-                    this.rootArray.add(new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
-
-                } else if (value instanceof Time) {
-                    this.rootArray.add(((Time) value).getTime());
-
-                } else if (value instanceof Integer) {
-                    this.rootArray.add((Integer) value);
-
-                } else if (value instanceof Double) {
-                    this.rootArray.add((Double) value);
-
-                } else if (value instanceof Float) {
-                    this.rootArray.add((Float) value);
-
-                } else if (value instanceof Long) {
-                    this.rootArray.add((Long) value);
-
-                } else if (value instanceof BigDecimal) {
-                    this.rootArray.add((BigDecimal) value);
-
-                } else if (value instanceof Character) {
-                    this.rootArray.add((Character) value);
-
-                } else if (value instanceof String) {
-                    this.rootArray.add((String) value);
-
-                } else if (value instanceof Boolean) {
-                    this.rootArray.add((Boolean) value);
-
-                } else if (value instanceof Enum) {
-                    this.rootArray.add(createJsonEnum((Enum) value, allowNullsBlanks));
-
-                } else {
-                    this.rootArray.add(value.toString());
-                }
-
-            } else {
-
-                ObjectNode node = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
-                this.mapNode.put(loop, node);
-                this.rootArray.add(node);
-            }
-
-            loop++;
-        }
-
     }
 
     public ObjectNode json() {
-        return rootObject;
+        return rootObjectNode;
     }
 
     public ArrayNode array() {
-        return rootArray;
+        return rootArrayNode;
     }
 
     public static JaneHelper from(Object object) {
@@ -229,58 +95,115 @@ public class JaneHelper {
 
     }
 
+    private void generateMapNode(Map map) {
+        this.rootObjectNode = new ObjectNode(JsonNodeFactory.instance);
+        this.mapNode = new HashMap();
+
+        int loop = 0;
+        for (Object keyy : map.keySet()) {
+
+            Object value = map.get(keyy);
+            String key = keyy.toString();
+
+            if (TIPOS_DATOS.contains(value.getClass()) || (value instanceof Enum)) {
+
+                this.generateNativesForMap(value, key, this.rootObjectNode);
+
+            } else {
+                ObjectNode node = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
+                this.rootObjectNode.set(key, node);
+                this.mapNode.put(loop, node);
+            }
+
+            loop++;
+        }
+
+    }
+
+    private void generateArrayNode(Collection collection) {
+        this.rootArrayNode = new ArrayNode(JsonNodeFactory.instance);
+        this.mapNode = new HashMap();
+
+        int loop = 0;
+
+        for (Object value : collection) {
+
+            Class clazz = value.getClass();
+
+            if (TIPOS_DATOS.contains(clazz) || (value instanceof Enum)) {
+                this.generateNativesForArray(value, this.rootArrayNode);
+
+            } else {
+
+                ObjectNode node = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, new String[]{"*"});
+                this.rootArrayNode.add(node);
+                this.mapNode.put(loop, node);
+            }
+
+            loop++;
+        }
+
+    }
+
     public JaneHelper only(String attrs) {
-        if (this.object instanceof Map) {
+
+        if (this.objectOrigin instanceof Map) {
             int loop = 0;
-            Map list = (Map) object;
+            Map list = (Map) objectOrigin;
+
             for (Object key : list.keySet()) {
                 Object obj = list.get(key);
                 ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
-                this.rootObject.set(key.toString(), node);
+                this.rootObjectNode.set(key.toString(), node);
                 this.mapNode.put(loop, node);
                 loop++;
             }
 
-        } else if (this.rootObject != null) {
-            this.rootObject = JsonHelper.createJson(object, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+        } else if (this.rootObjectNode != null) {
+            this.rootObjectNode = JsonHelper.createJson(objectOrigin, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
 
         } else {
-            this.rootArray = new ArrayNode(JsonNodeFactory.instance);
+            this.rootArrayNode = new ArrayNode(JsonNodeFactory.instance);
 
             int loop = 0;
-            if (this.object instanceof String[]) {
-                String[] list = (String[]) object;
+
+            if (this.objectOrigin instanceof String[]) {
+                String[] list = (String[]) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
                     this.mapNode.put(loop, node);
-                    this.rootArray.add(node);
+                    this.rootArrayNode.add(node);
                     loop++;
                 }
 
-            } else if (this.object instanceof Object[]) {
-                Object[] list = (Object[]) object;
+            } else if (this.objectOrigin instanceof Object[]) {
+
+                Object[] list = (Object[]) objectOrigin;
+
                 for (Object obj : list) {
                     ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
                     this.mapNode.put(loop, node);
-                    this.rootArray.add(node);
+                    this.rootArrayNode.add(node);
                     loop++;
                 }
 
-            } else if (this.object instanceof List) {
-                List list = (List) object;
+            } else if (this.objectOrigin instanceof List) {
+
+                List list = (List) objectOrigin;
+
                 for (Object obj : list) {
                     ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
                     this.mapNode.put(loop, node);
-                    this.rootArray.add(node);
+                    this.rootArrayNode.add(node);
                     loop++;
                 }
 
-            } else if (this.object instanceof Set) {
-                Set list = (Set) object;
+            } else if (this.objectOrigin instanceof Set) {
+                Set list = (Set) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
                     this.mapNode.put(loop, node);
-                    this.rootArray.add(node);
+                    this.rootArrayNode.add(node);
                     loop++;
                 }
 
@@ -302,75 +225,78 @@ public class JaneHelper {
         return join(subList, "*", false);
     }
 
-    public JaneHelper include(String subList, String fields) {
-        return join(subList, fields, false);
+    public JaneHelper include(String subList, String attributes) {
+        return join(subList, attributes, false);
     }
 
     public JaneHelper join(String parent) {
         return join(parent, "*", false);
     }
 
-    public JaneHelper join(String parent, String fields) {
-        return join(parent, fields, false);
+    public JaneHelper join(String parent, String attributes) {
+        return join(parent, attributes, false);
     }
 
     public JaneHelper join(String parent, boolean attachRoot) {
         return join(parent, "*", attachRoot);
     }
 
-    public JaneHelper join(String parentString, String fields, boolean attachRoot) {
-        if (this.object == null) {
+    public JaneHelper join(String parent, String attributes, boolean attachRoot) {
+        if (this.objectOrigin == null) {
             return this;
         }
 
-        parentString = parentString.replaceAll("\\s{2,}", " ").trim();
-        int countSpace = parentString.length() - parentString.replace(" ", "").length();
-        Assert.isTrue(countSpace < 2, "Mal ingreso de alias en " + parentString);
+        parent = parent.replaceAll("\\s{2,}", " ").trim();
+        int countSpace = parent.length() - parent.replace(" ", "").length();
+        Assert.isTrue(countSpace < 2, "Mal ingreso de alias en " + parent);
 
-        if (this.object instanceof Map) {
+        if (this.objectOrigin instanceof Map) {
             int loop = 0;
-            Map list = (Map) object;
-            for (Object key : list.keySet()) {
-                Object obj = list.get(key);
+            Map map = (Map) objectOrigin;
+
+            for (Object key : map.keySet()) {
+                Object obj = map.get(key);
                 ObjectNode node = mapNode.get(loop);
-                this.joinOneObject(obj, node, parentString, fields, attachRoot);
+                this.joinOneObject(obj, node, parent, attributes, attachRoot);
                 loop++;
             }
 
-        } else if (this.rootObject != null) {
-            this.joinOneObject(this.object, this.rootObject, parentString, fields, attachRoot);
+        } else if (this.rootObjectNode != null) {
+
+            this.joinOneObject(this.objectOrigin, this.rootObjectNode, parent, attributes, attachRoot);
 
         } else {
             int loop = 0;
-            if (this.object instanceof String[]) {
-                String[] list = (String[]) object;
+
+            if (this.objectOrigin instanceof String[]) {
+                String[] list = (String[]) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = mapNode.get(loop);
-                    this.joinOneObject(obj, node, parentString, fields, attachRoot);
+                    this.joinOneObject(obj, node, parent, attributes, attachRoot);
                     loop++;
                 }
 
-            } else if (this.object instanceof Object[]) {
-                Object[] list = (Object[]) object;
+            } else if (this.objectOrigin instanceof Object[]) {
+                Object[] list = (Object[]) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = mapNode.get(loop);
-                    this.joinOneObject(obj, node, parentString, fields, attachRoot);
+                    this.joinOneObject(obj, node, parent, attributes, attachRoot);
                     loop++;
                 }
 
-            } else if (this.object instanceof List) {
-                List list = (List) object;
+            } else if (this.objectOrigin instanceof List) {
+                List list = (List) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = mapNode.get(loop);
-                    this.joinOneObject(obj, node, parentString, fields, attachRoot);
+                    this.joinOneObject(obj, node, parent, attributes, attachRoot);
                     loop++;
                 }
 
-            } else if (this.object instanceof Set) {
-                Set list = (Set) object;
+            } else if (this.objectOrigin instanceof Set) {
+                Set list = (Set) objectOrigin;
                 for (Object obj : list) {
                     ObjectNode node = mapNode.get(loop);
-                    this.joinOneObject(obj, node, parentString, fields, attachRoot);
+                    this.joinOneObject(obj, node, parent, attributes, attachRoot);
                     loop++;
                 }
 
@@ -380,39 +306,50 @@ public class JaneHelper {
         return this;
     }
 
-    private void joinOneObject(Object matter, ObjectNode nodeRoot, String parentString, String fields, boolean attachRoot) {
-        int countSpace = parentString.length() - parentString.replace(" ", "").length();
-        Assert.isTrue(countSpace < 2, "Mal ingreso de alias en " + parentString);
+    private void joinOneObject(Object mother, ObjectNode nodeRoot, String parentName, String attributes, boolean attachRoot) {
 
-        Object parent;
+        int countSpace = parentName.length() - parentName.replace(" ", "").length();
+        Assert.isTrue(countSpace < 2, "Mal ingreso de alias en " + parentName);
+
+        Object parentObject;
+
         String alias = null;
         if (countSpace == 0) {
-            parent = ObjectUtil.getParentTree(matter, parentString);
+            parentObject = ObjectUtil.getParentTree(mother, parentName);
+
         } else {
-            alias = parentString.split(" ")[1];
-            parentString = parentString.split(" ")[0];
-            parent = ObjectUtil.getParentTree(matter, parentString);
+            alias = parentName.split(" ")[1];
+            parentName = parentName.split(" ")[0];
+            parentObject = ObjectUtil.getParentTree(mother, parentName);
         }
 
-        if (parent == null) {
+        String aliasFinal = StringUtils.isEmpty(alias) ? parentName : alias;
+
+        if (parentObject == null) {
             return;
         }
 
-        int posPoint = parentString.indexOf(".");
+        int posPoint = parentName.indexOf(".");
+
         if (posPoint < 0) {
-            if (parent instanceof List) {
-                if (alias == null) {
-                    nodeRoot.set(parentString, createArrayNode(parent, this.split(fields)));
-                } else {
-                    nodeRoot.set(alias, createArrayNode(parent, this.split(fields)));
-                }
+
+            if (parentObject instanceof List) {
+
+                List list = (List) parentObject;
+                nodeRoot.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+
+            } else if (parentObject instanceof Set) {
+                Set list = (Set) parentObject;
+                nodeRoot.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+
+            } else if (parentObject instanceof Map) {
+                log.info("aquí debería concidir para el map");
+                Map map = (Map) parentObject;
+
+                nodeRoot.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
 
             } else {
-                if (alias == null) {
-                    nodeRoot.set(parentString, JsonHelper.createJson(parent, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(fields)));
-                } else {
-                    nodeRoot.set(alias, JsonHelper.createJson(parent, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(fields)));
-                }
+                nodeRoot.set(aliasFinal, JsonHelper.createJson(parentObject, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(attributes)));
             }
             return;
         }
@@ -420,47 +357,94 @@ public class JaneHelper {
         String acum = "";
         ObjectNode nodo = nodeRoot;
 
-        String[] attrs = parentString.split("\\.");
+        String[] attrs = parentName.split("\\.");
+
         for (int i = 0; i < attrs.length; i++) {
             acum += acum.equals("") ? "" : ".";
             acum += attrs[i];
 
-            Object parentTree = ObjectUtil.getParentTree(matter, acum);
+            Object parentTree = ObjectUtil.getParentTree(mother, acum);
+
             if (parentTree instanceof List) {
                 Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
-                if (alias == null) {
-                    nodo.set(parentString, createArrayNode(parentTree, this.split(fields)));
-                } else {
-                    nodo.set(alias, createArrayNode(parentTree, this.split(fields)));
-                }
+
+                List list = (List) parentTree;
+                nodo.set(aliasFinal, createParentArrayNode(list, this.split(attributes)));
                 return;
 
+            } else if (parentTree instanceof Set) {
+                Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
+
+                Set list = (Set) parentTree;
+                nodo.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+                return;
+
+            } else if (parentTree instanceof Map) {
+                Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
+
+                Map map = (Map) parentTree;
+                nodeRoot.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
+
             } else {
+
                 if (i == attrs.length - 1) {
-                    if (alias == null) {
-                        nodo.set(attrs[i], JsonHelper.createJson(parent, JsonNodeFactory.instance, allowNullsBlanks, this.split(fields)));
-                    } else {
-                        nodo.set(alias, JsonHelper.createJson(parent, JsonNodeFactory.instance, allowNullsBlanks, this.split(fields)));
-                    }
+
+                    String subAlias = StringUtils.isEmpty(alias) ? attrs[i] : alias;
+                    nodo.set(subAlias, JsonHelper.createJson(parentObject, JsonNodeFactory.instance, allowNullsBlanks, this.split(attributes)));
+
                 } else {
                     if (!attachRoot) {
                         nodo = nodo.with(attrs[i]);
                     }
                 }
+
             }
         }
     }
 
-    private ArrayNode createArrayNode(Object object, String[] fields) {
-        List list = (List) object;
+    private ObjectNode createParentMapNode(Map map, String[] attributes) {
 
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode objectNodeMap = new ObjectNode(JsonNodeFactory.instance);
 
-        for (Object itemList : list) {
-            ObjectNode node = JsonHelper.createJson(itemList, JsonNodeFactory.instance, allowNullsBlanks, fields);
-            array.add(node);
+        for (Object keyy : map.keySet()) {
+
+            Object value = map.get(keyy);
+            String key = keyy.toString();
+
+            if (TIPOS_DATOS.contains(value.getClass()) || (value instanceof Enum)) {
+
+                this.generateNativesForMap(value, key, objectNodeMap);
+
+            } else {
+
+                ObjectNode json = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, attributes);
+                objectNodeMap.set(key, json);
+
+            }
         }
-        return array;
+
+        return objectNodeMap;
+    }
+
+    private ArrayNode createParentArrayNode(Collection list, String[] attributes) {
+
+        ArrayNode parentArray = new ArrayNode(JsonNodeFactory.instance);
+
+        for (Object value : list) {
+            Class clazz = value.getClass();
+
+            if (TIPOS_DATOS.contains(clazz) || (value instanceof Enum)) {
+
+                this.generateNativesForArray(value, parentArray);
+
+            } else {
+
+                ObjectNode node = JsonHelper.createJson(value, JsonNodeFactory.instance, allowNullsBlanks, attributes);
+                parentArray.add(node);
+            }
+
+        }
+        return parentArray;
     }
 
     private String[] split(String attrs) {
@@ -563,6 +547,107 @@ public class JaneHelper {
             }
         }
         return null;
+    }
+
+    private void generateNativesForMap(Object value, String key, ObjectNode objectNode) {
+        if (value instanceof Date) {
+            Date d1 = new LocalDate((Date) value).toDate();
+            Date d2 = new DateTime((Date) value).toDate();
+
+            if (d1.getTime() == d2.getTime()) {
+                objectNode.put(key, new DateTime((Date) value).toString("dd/MM/yyyy"));
+            } else {
+                objectNode.put(key, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+            }
+
+        } else if (value instanceof Timestamp) {
+            objectNode.put(key, new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+
+        } else if (value instanceof Time) {
+            objectNode.put(key, ((Time) value).getTime());
+
+        } else if (value instanceof Integer) {
+            objectNode.put(key, (Integer) value);
+
+        } else if (value instanceof Double) {
+            objectNode.put(key, (Double) value);
+
+        } else if (value instanceof Float) {
+            objectNode.put(key, (Float) value);
+
+        } else if (value instanceof Long) {
+            objectNode.put(key, (Long) value);
+
+        } else if (value instanceof BigDecimal) {
+            objectNode.put(key, (BigDecimal) value);
+
+        } else if (value instanceof Character) {
+            objectNode.put(key, (Character) value);
+
+        } else if (value instanceof String) {
+            objectNode.put(key, (String) value);
+
+        } else if (value instanceof Boolean) {
+            objectNode.put(key, (Boolean) value);
+
+        } else if (value instanceof Enum) {
+            objectNode.set(key, this.createJsonEnum((Enum) value, allowNullsBlanks));
+
+        } else {
+            objectNode.put(key, value.toString());
+        }
+
+    }
+
+    private void generateNativesForArray(Object value, ArrayNode node) {
+
+        if (value instanceof Date) {
+            Date d1 = new LocalDate((Date) value).toDate();
+            Date d2 = new DateTime((Date) value).toDate();
+
+            if (d1.getTime() == d2.getTime()) {
+                node.add(new DateTime((Date) value).toString("dd/MM/yyyy"));
+            } else {
+                node.add(new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+            }
+
+        } else if (value instanceof Timestamp) {
+            node.add(new DateTime((Date) value).toString("dd/MM/yyyy HH:mm:ss"));
+
+        } else if (value instanceof Time) {
+            node.add(((Time) value).getTime());
+
+        } else if (value instanceof Integer) {
+            node.add((Integer) value);
+
+        } else if (value instanceof Double) {
+            node.add((Double) value);
+
+        } else if (value instanceof Float) {
+            node.add((Float) value);
+
+        } else if (value instanceof Long) {
+            node.add((Long) value);
+
+        } else if (value instanceof BigDecimal) {
+            node.add((BigDecimal) value);
+
+        } else if (value instanceof Character) {
+            node.add((Character) value);
+
+        } else if (value instanceof String) {
+            node.add((String) value);
+
+        } else if (value instanceof Boolean) {
+            node.add((Boolean) value);
+
+        } else if (value instanceof Enum) {
+            node.add(createJsonEnum((Enum) value, allowNullsBlanks));
+
+        } else {
+            node.add(value.toString());
+        }
+
     }
 
 }
