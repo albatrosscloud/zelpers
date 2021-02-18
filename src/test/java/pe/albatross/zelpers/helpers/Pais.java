@@ -14,6 +14,8 @@ public class Pais {
     private Long id;
     private String codigo;
     private String nombre;
+    
+    private Ciudad capital;
 
     private List<Ciudad> ciudades;
 

@@ -122,17 +122,28 @@ public class JaneHelperTest {
     @Test
     @Order(350)
     public void atributosListas() {
-
+        
+        
         Pais peru = paises.get("peru");
         peru.setCiudades(new ArrayList(ciudades.values()));
         peru.setSitiosTuristicos(Arrays.asList("Selva", "Costa", "Sierra"));
-
         peru.setCiudadesMap(ciudades);
+        peru.setCapital(ciudades.get("lima"));
+        
+        
+        Persona dua = new Persona("Dua");
+        dua.setCiudad(ciudades.get("lima"));
+        dua.setPaisVacaciones(peru);
+        
 
-        ObjectNode json = JaneHelper.from(peru)
-                .include("sitiosTuristicos")
-                .include("ciudades")
-                .include("ciudadesMap")
+        ObjectNode json = JaneHelper.from(dua)
+                .only("nombres")
+                .join("ciudad")
+                .join("paisVacaciones")
+                .join("paisVacaciones.capital")
+                .include("paisVacaciones.sitiosTuristicos")
+                .include("paisVacaciones.ciudadesMap ")
+                .include("paisVacaciones.ciudades")
                 .json();
 
         log.info("atributosListas {}", json.toPrettyString());

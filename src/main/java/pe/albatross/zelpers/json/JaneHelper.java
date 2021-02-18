@@ -306,26 +306,24 @@ public class JaneHelper {
         return this;
     }
 
-    private void joinOneObject(Object mother, ObjectNode nodeRoot, String parentName, String attributes, boolean attachRoot) {
+    private void joinOneObject(Object mother, ObjectNode parentNode, String parentName, String attributes, boolean attachRoot) {
 
         int countSpace = parentName.length() - parentName.replace(" ", "").length();
         Assert.isTrue(countSpace < 2, "Mal ingreso de alias en " + parentName);
 
-        Object parentObject;
+        Object object;
 
         String alias = null;
         if (countSpace == 0) {
-            parentObject = ObjectUtil.getParentTree(mother, parentName);
+            object = ObjectUtil.getParentTree(mother, parentName);
 
         } else {
             alias = parentName.split(" ")[1];
             parentName = parentName.split(" ")[0];
-            parentObject = ObjectUtil.getParentTree(mother, parentName);
+            object = ObjectUtil.getParentTree(mother, parentName);
         }
 
-        String aliasFinal = StringUtils.isEmpty(alias) ? parentName : alias;
-
-        if (parentObject == null) {
+        if (object == null) {
             return;
         }
 
@@ -333,73 +331,82 @@ public class JaneHelper {
 
         if (posPoint < 0) {
 
-            if (parentObject instanceof List) {
+            String aliasFinal = StringUtils.isEmpty(alias) ? parentName : alias;
 
-                List list = (List) parentObject;
-                nodeRoot.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+            this.generateParentJson(parentNode, object, aliasFinal, attributes);
 
-            } else if (parentObject instanceof Set) {
-                Set list = (Set) parentObject;
-                nodeRoot.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
-
-            } else if (parentObject instanceof Map) {
-                log.info("aquí debería concidir para el map");
-                Map map = (Map) parentObject;
-
-                nodeRoot.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
-
-            } else {
-                nodeRoot.set(aliasFinal, JsonHelper.createJson(parentObject, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(attributes)));
-            }
-            return;
+        } else {
+            this.generateAncestrosJson(mother, parentNode, parentName, object, alias, attributes, attachRoot);
         }
 
-        String acum = "";
-        ObjectNode nodo = nodeRoot;
+    }
+
+    private void generateAncestrosJson(Object mother, ObjectNode parentNode, String parentName, Object objectTransform, String alias, String attributes, boolean attachRoot) {
 
         String[] attrs = parentName.split("\\.");
+        String acum = "";
 
         for (int i = 0; i < attrs.length; i++) {
+
             acum += acum.equals("") ? "" : ".";
             acum += attrs[i];
 
-            Object parentTree = ObjectUtil.getParentTree(mother, acum);
+            if (i == attrs.length - 1) {
 
-            if (parentTree instanceof List) {
-                Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
+                String subAlias = StringUtils.isEmpty(alias) ? attrs[i] : alias;
+                
+                Object parentTree = ObjectUtil.getParentTree(mother, acum);
 
-                List list = (List) parentTree;
-                nodo.set(aliasFinal, createParentArrayNode(list, this.split(attributes)));
-                return;
+                if (parentTree instanceof List) {
 
-            } else if (parentTree instanceof Set) {
-                Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
+                    List list = (List) parentTree;
+                    parentNode.set(subAlias, this.createParentArrayNode(list, this.split(attributes)));
 
-                Set list = (Set) parentTree;
-                nodo.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
-                return;
+                } else if (parentTree instanceof Set) {
 
-            } else if (parentTree instanceof Map) {
-                Assert.isTrue(i == attrs.length - 1, "No puede ingresar al array " + acum);
+                    Set list = (Set) parentTree;
+                    parentNode.set(subAlias, this.createParentArrayNode(list, this.split(attributes)));
 
-                Map map = (Map) parentTree;
-                nodeRoot.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
+                } else if (parentTree instanceof Map) {
 
-            } else {
-
-                if (i == attrs.length - 1) {
-
-                    String subAlias = StringUtils.isEmpty(alias) ? attrs[i] : alias;
-                    nodo.set(subAlias, JsonHelper.createJson(parentObject, JsonNodeFactory.instance, allowNullsBlanks, this.split(attributes)));
+                    Map map = (Map) parentTree;
+                    parentNode.set(subAlias, this.createParentMapNode(map, this.split(attributes)));
 
                 } else {
-                    if (!attachRoot) {
-                        nodo = nodo.with(attrs[i]);
-                    }
+                    parentNode.set(subAlias, JsonHelper.createJson(objectTransform, JsonNodeFactory.instance, allowNullsBlanks, this.split(attributes)));
                 }
 
+            } else {
+                if (!attachRoot) {
+                    parentNode = parentNode.with(attrs[i]);
+                }
             }
         }
+
+    }
+
+    private void generateParentJson(ObjectNode parentNode, Object object, String aliasFinal, String attributes) {
+
+        if (object instanceof List) {
+
+            List list = (List) object;
+            parentNode.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+
+        } else if (object instanceof Set) {
+
+            Set list = (Set) object;
+            parentNode.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+
+        } else if (object instanceof Map) {
+
+            Map map = (Map) object;
+            parentNode.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
+
+        } else {
+
+            parentNode.set(aliasFinal, JsonHelper.createJson(object, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(attributes)));
+        }
+
     }
 
     private ObjectNode createParentMapNode(Map map, String[] attributes) {
