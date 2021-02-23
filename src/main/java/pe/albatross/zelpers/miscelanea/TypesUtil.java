@@ -444,18 +444,25 @@ public class TypesUtil {
         return list;
     }
 
+    public static String capitalize(String str) {
+        return TypesUtil.capitalizeWord(str);
+    }
+
     public static String capitalizeWord(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
+        if (StringUtils.isBlank(str)) {
+            return "";
         }
+
         str = str.trim().replaceAll("\\s{2,}", " ").trim();
         String words[] = str.split("\\s");
         String capitalizeWord = "";
+
         for (String w : words) {
             String first = w.substring(0, 1);
             String afterfirst = w.substring(1);
             capitalizeWord += first.toUpperCase() + afterfirst.toLowerCase() + " ";
         }
+
         return capitalizeWord.trim();
     }
 

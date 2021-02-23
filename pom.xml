@@ -4,7 +4,7 @@
 
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.2.24</version>
+    <version>0.2.25</version>
 
     <packaging>jar</packaging>
     
@@ -169,11 +169,13 @@
             <version>1.7.1</version>
             <scope>test</scope>
         </dependency>
-        
+       
+       
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.30</version>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
