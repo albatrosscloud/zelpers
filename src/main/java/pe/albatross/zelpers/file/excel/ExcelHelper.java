@@ -2,6 +2,10 @@ package pe.albatross.zelpers.file.excel;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,13 +16,18 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+/**
+ * Se recomienda implementar una nueva version todo en static.
+ */
+@Slf4j
+@Getter
+@Setter
+@NoArgsConstructor
+@Deprecated
 public class ExcelHelper {
 
     private Sheet sheet;
     private Workbook workBook;
-
-    public ExcelHelper() {
-    }
 
     public ExcelHelper(Sheet sheet, Workbook workBook) {
         this.sheet = sheet;
@@ -252,12 +261,12 @@ public class ExcelHelper {
 
     public void replaceVal(int nroRow, int nroCell, BigDecimal valor) {
         Cell cell = findCell(nroRow, nroCell);
-        
+
         cell.setBlank();
         if (valor != null) {
             cell.setCellValue(valor.doubleValue());
         }
-        
+
     }
 
     public void replaceVal(int nroRow, int nroCell, BigDecimal valor, String formato) {
@@ -267,7 +276,7 @@ public class ExcelHelper {
         CellStyle cellStyle = getCellStyle(nroRow, nroCell);
         DataFormat df = workBook.createDataFormat();
         cellStyle.setDataFormat(df.getFormat(formato));
-        
+
         cell.setCellStyle(cellStyle);
     }
 
@@ -292,22 +301,6 @@ public class ExcelHelper {
 
     public void setWidthColumn(int numberColumn, int width) {
         sheet.setColumnWidth(numberColumn, width);
-    }
-
-    public Sheet getSheet() {
-        return sheet;
-    }
-
-    public void setSheet(Sheet sheet) {
-        this.sheet = sheet;
-    }
-
-    public Workbook getWorkBook() {
-        return workBook;
-    }
-
-    public void setWorkBook(Workbook workBook) {
-        this.workBook = workBook;
     }
 
     public static String getColLetterByColNum(int col) {
