@@ -275,15 +275,38 @@ public class ObjectUtil {
         System.out.println("/======================================================================\\");
         Method[] methods = obj.getClass().getMethods();
         System.out.println("| class: " + obj.getClass().getName());
-        System.out.println("|======================================================================|");
+        System.out.println("|========================== LISTA DE METODOS GET ==============================|");
+
+        int tope = 4;
+        int loop = 0;
+        int contador = 1;
+        for (Method method : methods) {
+            if (method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0) {
+                if (loop >= tope) {
+                    System.out.println("");
+                    loop = 0;
+                }
+                System.out.print("\t[" + contador + "] " + method.getName());
+                loop++;
+                contador++;
+            }
+        }
+        System.out.println("");
+        System.out.println("|====================== LISTA DE VALORES DE LOS GET ===========================|");
 
         for (Method method : methods) {
             if (method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0) {
                 try {
+                    System.out.print("|\t" + method.getName() + " - ");
                     Object returnObject = method.invoke(obj);
-                    System.out.println("|\t" + method.getName() + " - " + returnObject);
-                } catch (Exception ex) {
-                    logger.error(method.getName() + ": " + ex.getMessage());
+                    System.out.println(returnObject);
+
+                } catch (IllegalAccessException ex) {
+                    System.out.println(" ERROR - " + ex.getLocalizedMessage());
+                } catch (IllegalArgumentException ex) {
+                    System.out.println(" ERROR - " + ex.getLocalizedMessage());
+                } catch (InvocationTargetException ex) {
+                    System.out.println(" ERROR - " + ex.getLocalizedMessage());
                 }
             }
 
