@@ -6,10 +6,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.text.WordUtils;
+import org.hibernate.LazyInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,23 +274,104 @@ public class ObjectUtil {
             return;
         }
 
-        System.out.println("/======================================================================\\");
         Method[] methods = obj.getClass().getMethods();
+        List<String> metodos = getMetodos(methods);
+        int maxSize = getMaxSize(metodos);
+        int vecesTabs = getVecesTabs(maxSize);
+
+        System.out.println("/==============================================================================\\");
         System.out.println("| class: " + obj.getClass().getName());
-        System.out.println("|======================================================================|");
+        System.out.println("|========================== LISTA DE METODOS GET ==============================|");
+
+        int tope = maxSize > 25 ? 3 : 4;
+        int loop = 0;
+        int contador = 1;
+
+        for (String method : metodos) {
+            String name = "[" + contador + "] " + method + " ";
+            if (loop >= tope) {
+                System.out.println("");
+                loop = 0;
+            }
+            if (loop == 0) {
+                System.out.print("|\t");
+            }
+            System.out.print(name);
+            int vecesTabName = getVecesTabsMethod(name);
+            for (int i = 0; i < vecesTabs - vecesTabName; i++) {
+                System.out.print("\t");
+            }
+
+            loop++;
+            contador++;
+
+        }
+
+        System.out.println("");
+        System.out.println("|====================== LISTA DE VALORES DE LOS GET ===========================|");
 
         for (Method method : methods) {
             if (method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0) {
                 try {
+                    System.out.print("|\t" + method.getName() + " = ");
                     Object returnObject = method.invoke(obj);
-                    System.out.println("|\t" + method.getName() + " - " + returnObject);
+                    System.out.println(returnObject);
+
+                } catch (IllegalAccessException ex) {
+                    System.out.println("ERROR " + ex.getClass().getSimpleName() + " -> " + ex.getLocalizedMessage());
+                } catch (IllegalArgumentException ex) {
+                    System.out.println("ERROR " + ex.getClass().getSimpleName() + " -> " + ex.getLocalizedMessage());
+                } catch (InvocationTargetException ex) {
+                    System.out.println("ERROR " + ex.getClass().getSimpleName() + " -> " + ex.getLocalizedMessage());
+                } catch (LazyInitializationException ex) {
+                    System.out.println("ERROR " + ex.getClass().getSimpleName() + " -> " + ex.getLocalizedMessage());
                 } catch (Exception ex) {
-                    logger.error(method.getName() + ": " + ex.getMessage());
+                    System.out.println("ERROR " + ex.getClass().getSimpleName() + " -> " + ex.getLocalizedMessage());
                 }
             }
 
         }
-        System.out.println("\\======================================================================/");
+
+        System.out.println("\\==============================================================================/");
+        System.out.println("");
+    }
+
+    private static List<String> getMetodos(Method[] methods) {
+        List<String> metodos = new ArrayList();
+        for (Method method : methods) {
+            if (method.getName().startsWith("get") && method.getGenericParameterTypes().length == 0) {
+                metodos.add(method.getName());
+            }
+        }
+        return metodos;
+    }
+
+    private static int getMaxSize(List<String> metodos) {
+        int maxSize = 0;
+        int contador = 1;
+        for (String method : metodos) {
+            String name = "[" + contador + "] " + method + " ";
+            maxSize = name.length() > maxSize ? name.length() : maxSize;
+            contador++;
+        }
+        return maxSize;
+    }
+
+    private static int getVecesTabs(int maxSizeMain) {
+        int maxSize = maxSizeMain - 8;
+        int veces8 = maxSize / 8;
+        int residuo = maxSize % 8;
+        int vecesTabs = veces8 + (residuo > 0 ? 1 : 0);
+        return vecesTabs;
+    }
+
+    private static int getVecesTabsMethod(String method) {
+        int len = method.length();
+        len -= 8;
+        int veces8 = len / 8;
+        int residuo = len % 8;
+        int vecesTabs = veces8 + (residuo > 0 ? 1 : 0);
+        return (residuo > 0) ? (vecesTabs - 1) : vecesTabs;
     }
 
     public static boolean verificarIgualdad(Object obj1, Object obj2, List<String> atributos) {

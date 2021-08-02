@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.LocalDate;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
@@ -122,19 +125,16 @@ public class JaneHelperTest {
     @Test
     @Order(350)
     public void atributosListas() {
-        
-        
+
         Pais peru = paises.get("peru");
         peru.setCiudades(new ArrayList(ciudades.values()));
         peru.setSitiosTuristicos(Arrays.asList("Selva", "Costa", "Sierra"));
         peru.setCiudadesMap(ciudades);
         peru.setCapital(ciudades.get("lima"));
-        
-        
+
         Persona dua = new Persona("Dua");
         dua.setCiudad(ciudades.get("lima"));
         dua.setPaisVacaciones(peru);
-        
 
         ObjectNode json = JaneHelper.from(dua)
                 .only("nombres")
