@@ -433,7 +433,7 @@ public class JsonHelper {
 
             Method method = ObjectUtil.getMethod(obj, attr);
             if (method == null) {
-                throw new PhobosException("No existe el metodo GET o el metodo IS para el atributo: " + attr);
+                throw new PhobosException("No existe el metodo GET o el metodo IS para el atributo: " + attr + " en " + obj.getClass());
             }
 
             Class methodClass = method.getReturnType();
@@ -540,8 +540,12 @@ public class JsonHelper {
     private static void putOneAttr(ObjectNode json, Object obj, String attr, Class objectClass, boolean allowNullsBlanks) {
         Method method = ObjectUtil.getMethod(obj, attr);
 
-        if (method == null) {
-            log.error("No existe el metodo GET o el metodo IS para el atributo: " + attr);
+        if (method == null && obj == null) {
+            log.error("No existe el metodo GET o el metodo IS para el atributo: " + attr + " en object-null");
+            return;
+        }
+        if (method == null && obj != null) {
+            log.error("No existe el metodo GET o el metodo IS para el atributo: " + attr + " en " + obj.getClass());
             return;
         }
 
