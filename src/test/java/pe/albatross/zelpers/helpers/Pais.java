@@ -5,16 +5,18 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @NoArgsConstructor
+@ToString
 public class Pais {
 
     private Long id;
     private String codigo;
     private String nombre;
-    
+
     private Ciudad capital;
 
     private List<Ciudad> ciudades;
@@ -26,7 +28,6 @@ public class Pais {
     public Pais(Long id, String nombre) {
         this.id = id;
         this.nombre = nombre;
-
     }
 
 }
