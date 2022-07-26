@@ -10,33 +10,13 @@ import pe.albatross.zelpers.helpers.Ciudad;
 import pe.albatross.zelpers.helpers.Pais;
 
 @Slf4j
-public class AssertTest {
-
-    @Test
-    public void assert_isnull_ok() {
-        String data = null;
-        Assert.isNull(data, "Error, el valor no es NULL");
-    }
-
-    @Test
-    public void assert_isnull_error() {
-        String data = "algo";
-        Exception exception = assertThrows(PhobosException.class, () -> {
-            Assert.isNull(data, "Error, el valor no es NULL");
-        });
-
-        String expectedMessage = "Error, el valor no es NULL";
-        String actualMessage = exception.getMessage();
-        log.info("Assert.isNull(data) data=[{}] message=[{}]", data, actualMessage);
-
-        assertEquals(actualMessage, expectedMessage);
-    }
+public class Assert_isEqual_Test {
 
     @Test
     public void assert_equals_nulls_ok() {
         String data1 = null;
         String data2 = null;
-        Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+        Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         log.info("OK :::: Assert.isEquals(data1,data2) data1=[{}] data2=[{}]", data1, data2);
     }
 
@@ -44,7 +24,7 @@ public class AssertTest {
     public void assert_equals_notnulls_ok() {
         String data1 = "algo1";
         String data2 = "algo1";
-        Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+        Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         log.info("OK :::: Assert.isEquals(data1,data2) data1=[{}] data2=[{}]", data1, data2);
     }
 
@@ -52,7 +32,7 @@ public class AssertTest {
     public void assert_equals_notnulls_numbers_ok() {
         Integer data1 = 100;
         Long data2 = 100L;
-        Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+        Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         log.info("OK :::: Assert.isEquals(data1,data2) {} data1=[{}] {} data2=[{}]",
                 data1.getClass().getSimpleName(), data1,
                 data2.getClass().getSimpleName(), data2);
@@ -62,7 +42,7 @@ public class AssertTest {
     public void assert_equals_notnulls_dates_ok() {
         Date data1 = new Date();
         Date data2 = new Date();
-        Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+        Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         log.info("OK :::: Assert.isEquals(data1,data2) data1=[{}] data2=[{}]", data1, data2);
     }
 
@@ -72,7 +52,7 @@ public class AssertTest {
         String data2 = "algo";
 
         Exception exception = assertThrows(PhobosException.class, () -> {
-            Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+            Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         });
 
         String expectedMessage = "Error, estos datos no son iguales";
@@ -88,7 +68,7 @@ public class AssertTest {
         String data2 = null;
 
         Exception exception = assertThrows(PhobosException.class, () -> {
-            Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+            Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         });
 
         String expectedMessage = "Error, estos datos no son iguales";
@@ -104,7 +84,7 @@ public class AssertTest {
         String data2 = "algo";
 
         Exception exception = assertThrows(PhobosException.class, () -> {
-            Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+            Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         });
 
         String expectedMessage = "Error, estos datos no son iguales";
@@ -126,7 +106,7 @@ public class AssertTest {
         log.info("pais1={}", data1);
         log.info("pais2={}", data2);
 
-        Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+        Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         log.info("OK :::: Assert.isEquals(data1,data2) data1=[{}] data2=[{}]", data1, data2);
     }
 
@@ -143,7 +123,7 @@ public class AssertTest {
         log.info("ciudad2={}", data2);
 
         Exception exception = assertThrows(PhobosException.class, () -> {
-            Assert.isEquals(data1, data2, "Error, estos datos no son iguales");
+            Assert.isEqual(data1, data2, "Error, estos datos no son iguales");
         });
 
         String expectedMessage = "Error, estos datos no son iguales";
