@@ -9,7 +9,7 @@ import pe.albatross.zelpers.helpers.Pais;
 import pe.albatross.zelpers.helpers.RecursoNatural;
 
 @Slf4j
-public class ObjectUtilTest {
+public class ObjectUtil_Test {
 
     @Test
     @Order(100)
