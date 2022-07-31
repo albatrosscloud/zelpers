@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -26,6 +27,9 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 
 @Slf4j
 public class JaneHelper {
+
+    private Set<String> fields;
+    private Map<String, Set<String>> parentsFields;
 
     private Object objectOrigin;
 
@@ -147,20 +151,32 @@ public class JaneHelper {
 
     public JaneHelper only(String attrs) {
 
+        Assert.isNotNull(attrs, "Ha ingresado datos nulos en el método ONLY");
+        boolean isEmpty = false;
+        if (fields == null) {
+            fields = new TreeSet();
+            isEmpty = true;
+        }
+        fields.addAll(Arrays.asList(this.split(attrs)));
+        String[] columns = isEmpty ? this.split(attrs) : new String[fields.size()];
+        if (!isEmpty) {
+            fields.toArray(columns);
+        }
+
         if (this.objectOrigin instanceof Map) {
             int loop = 0;
             Map list = (Map) objectOrigin;
 
             for (Object key : list.keySet()) {
                 Object obj = list.get(key);
-                ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+                ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, columns);
                 this.rootObjectNode.set(key.toString(), node);
                 this.mapNode.put(loop, node);
                 loop++;
             }
 
         } else if (this.rootObjectNode != null) {
-            this.rootObjectNode = JsonHelper.createJson(objectOrigin, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+            this.rootObjectNode = JsonHelper.createJson(objectOrigin, JsonNodeFactory.instance, allowNullsBlanks, columns);
 
         } else {
             this.rootArrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -170,7 +186,7 @@ public class JaneHelper {
             if (this.objectOrigin instanceof String[]) {
                 String[] list = (String[]) objectOrigin;
                 for (Object obj : list) {
-                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, columns);
                     this.mapNode.put(loop, node);
                     this.rootArrayNode.add(node);
                     loop++;
@@ -181,7 +197,7 @@ public class JaneHelper {
                 Object[] list = (Object[]) objectOrigin;
 
                 for (Object obj : list) {
-                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, columns);
                     this.mapNode.put(loop, node);
                     this.rootArrayNode.add(node);
                     loop++;
@@ -192,7 +208,7 @@ public class JaneHelper {
                 List list = (List) objectOrigin;
 
                 for (Object obj : list) {
-                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, columns);
                     this.mapNode.put(loop, node);
                     this.rootArrayNode.add(node);
                     loop++;
@@ -201,7 +217,7 @@ public class JaneHelper {
             } else if (this.objectOrigin instanceof Set) {
                 Set list = (Set) objectOrigin;
                 for (Object obj : list) {
-                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, this.split(attrs));
+                    ObjectNode node = JsonHelper.createJson(obj, JsonNodeFactory.instance, allowNullsBlanks, columns);
                     this.mapNode.put(loop, node);
                     this.rootArrayNode.add(node);
                     loop++;
@@ -318,7 +334,7 @@ public class JaneHelper {
             object = ObjectUtil.getParentTree(mother, parentName);
 
         } else {
-            alias = parentName.split(" ")[1];
+            alias = parentName.split(" ")[1].trim();
             parentName = parentName.split(" ")[0];
             object = ObjectUtil.getParentTree(mother, parentName);
         }
@@ -330,10 +346,8 @@ public class JaneHelper {
         int posPoint = parentName.indexOf(".");
 
         if (posPoint < 0) {
-
             String aliasFinal = StringUtils.isEmpty(alias) ? parentName : alias;
-
-            this.generateParentJson(parentNode, object, aliasFinal, attributes);
+            this.generateParentJson(parentNode, object, parentName, aliasFinal, attributes);
 
         } else {
             this.generateAncestrosJson(mother, parentNode, parentName, object, alias, attributes, attachRoot);
@@ -346,6 +360,23 @@ public class JaneHelper {
         String[] attrs = parentName.split("\\.");
         String acum = "";
 
+        if (parentsFields == null) {
+            parentsFields = new HashMap();
+        }
+
+        boolean isEmpty = false;
+        Set<String> parentFields = parentsFields.get(parentName);
+        if (parentFields == null) {
+            parentFields = new TreeSet();
+            isEmpty = true;
+            parentsFields.put(parentName, parentFields);
+        }
+        parentFields.addAll(Arrays.asList(this.split(attributes)));
+        String[] columns = isEmpty ? this.split(attributes) : new String[parentFields.size()];
+        if (!isEmpty) {
+            parentFields.toArray(columns);
+        }
+
         for (int i = 0; i < attrs.length; i++) {
 
             acum += acum.equals("") ? "" : ".";
@@ -354,26 +385,26 @@ public class JaneHelper {
             if (i == attrs.length - 1) {
 
                 String subAlias = StringUtils.isEmpty(alias) ? attrs[i] : alias;
-                
+
                 Object parentTree = ObjectUtil.getParentTree(mother, acum);
 
                 if (parentTree instanceof List) {
 
                     List list = (List) parentTree;
-                    parentNode.set(subAlias, this.createParentArrayNode(list, this.split(attributes)));
+                    parentNode.set(subAlias, this.createParentArrayNode(list, columns));
 
                 } else if (parentTree instanceof Set) {
 
                     Set list = (Set) parentTree;
-                    parentNode.set(subAlias, this.createParentArrayNode(list, this.split(attributes)));
+                    parentNode.set(subAlias, this.createParentArrayNode(list, columns));
 
                 } else if (parentTree instanceof Map) {
 
                     Map map = (Map) parentTree;
-                    parentNode.set(subAlias, this.createParentMapNode(map, this.split(attributes)));
+                    parentNode.set(subAlias, this.createParentMapNode(map, columns));
 
                 } else {
-                    parentNode.set(subAlias, JsonHelper.createJson(objectTransform, JsonNodeFactory.instance, allowNullsBlanks, this.split(attributes)));
+                    parentNode.set(subAlias, JsonHelper.createJson(objectTransform, JsonNodeFactory.instance, allowNullsBlanks, columns));
                 }
 
             } else {
@@ -385,26 +416,43 @@ public class JaneHelper {
 
     }
 
-    private void generateParentJson(ObjectNode parentNode, Object object, String aliasFinal, String attributes) {
+    private void generateParentJson(ObjectNode parentNode, Object object, String parentName, String aliasFinal, String attributes) {
+
+        if (parentsFields == null) {
+            parentsFields = new HashMap();
+        }
+
+        boolean isEmpty = false;
+        Set<String> parentFields = parentsFields.get(parentName);
+        if (parentFields == null) {
+            parentFields = new TreeSet();
+            isEmpty = true;
+            parentsFields.put(parentName, parentFields);
+        }
+        parentFields.addAll(Arrays.asList(this.split(attributes)));
+        String[] columns = isEmpty ? this.split(attributes) : new String[parentFields.size()];
+        if (!isEmpty) {
+            parentFields.toArray(columns);
+        }
 
         if (object instanceof List) {
 
             List list = (List) object;
-            parentNode.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+            parentNode.set(aliasFinal, this.createParentArrayNode(list, columns));
 
         } else if (object instanceof Set) {
 
             Set list = (Set) object;
-            parentNode.set(aliasFinal, this.createParentArrayNode(list, this.split(attributes)));
+            parentNode.set(aliasFinal, this.createParentArrayNode(list, columns));
 
         } else if (object instanceof Map) {
 
             Map map = (Map) object;
-            parentNode.set(aliasFinal, this.createParentMapNode(map, this.split(attributes)));
+            parentNode.set(aliasFinal, this.createParentMapNode(map, columns));
 
         } else {
 
-            parentNode.set(aliasFinal, JsonHelper.createJson(object, JsonNodeFactory.instance, this.allowNullsBlanks, this.split(attributes)));
+            parentNode.set(aliasFinal, JsonHelper.createJson(object, JsonNodeFactory.instance, this.allowNullsBlanks, columns));
         }
 
     }
