@@ -30,7 +30,7 @@ import pe.albatross.zelpers.helpers.TagsEnum;
 
 @Slf4j
 @RunWith(JUnitPlatform.class)
-public class JaneHelperTest {
+public class JaneHelper_SimpleTests {
 
     private static Persona pepe = null;
     private final static Map<String, Pais> paises = new HashMap();
