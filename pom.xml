@@ -4,7 +4,7 @@
 
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.3.12-minio-services-SNAPSHOT</version>
+    <version>0.3.12-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     
