@@ -485,10 +485,15 @@ public class JsonHelper {
                 continue;
             }
 
+            if (method.getGenericParameterTypes().length != 0) {
+                continue;
+            }
+
             Object value = null;
             try {
                 value = method.invoke(obj);
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
 
             if (!allowNullsBlanks && value == null) {
@@ -555,6 +560,7 @@ public class JsonHelper {
         try {
             value = method.invoke(obj);
         } catch (Exception ex) {
+            logger.error(ex.getLocalizedMessage());
         }
 
         if (!allowNullsBlanks && value == null) {

@@ -80,16 +80,30 @@ public class ObjectUtil {
         sbMetodo.append(WordUtils.capitalize(atributo));
 
         for (Method metodoTmp : obj.getClass().getMethods()) {
+            if (metodoTmp.getGenericParameterTypes().length != 0) {
+                continue;
+            }
             if (sbMetodo.toString().equals(metodoTmp.getName())) {
                 metodo = metodoTmp;
                 break;
             }
         }
+
+        if (metodo == null) {
+            logger.error("El método " + sbMetodo.toString() + " no existe para la class " + obj.getClass().getSimpleName());
+            return parent;
+        }
+
         try {
             parent = metodo.invoke(obj);
+
         } catch (InvocationTargetException ex) {
+            logger.error("InvocationTargetException ::: " + ex.getMessage());
+            ex.printStackTrace();
+
         } catch (Exception ex) {
-            logger.error("InvocationTargetException ::: " + ex.getLocalizedMessage());
+            logger.error("Exception ::: " + ex.getMessage());
+            ex.printStackTrace();
         }
 
         return parent;

@@ -13,7 +13,7 @@ public class ObjectUtil_Test {
 
     @Test
     @Order(100)
-    public void clazz_simple() {
+    public void printAttr_simple() {
         Ciudad ciudad = new Ciudad();
         ciudad.setId(23L);
         ciudad.setNombre("Lima");
@@ -25,11 +25,21 @@ public class ObjectUtil_Test {
 
     @Test
     @Order(200)
-    public void clazz_metodo_grandes() {
+    public void printAttr_metodo_grandes() {
         CicloAcademico ciclo = new CicloAcademico();
         ObjectUtil.printAttr(ciclo);
 
         RecursoNatural recurso = new RecursoNatural();
         ObjectUtil.printAttr(recurso);
+    }
+
+    @Test
+    @Order(300)
+    public void getParentTree_method_with_params() {
+        CicloAcademico ciclo = new CicloAcademico();
+        ciclo.setCodigo("20221");
+        ciclo.setNombre("2022-I");
+
+        org.junit.Assert.assertNull(ObjectUtil.getParentTree(ciclo, "codigoNuevo"));
     }
 }

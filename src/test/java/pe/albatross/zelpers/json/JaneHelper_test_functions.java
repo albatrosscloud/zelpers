@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
+import pe.albatross.zelpers.helpers.CicloAcademico;
 import pe.albatross.zelpers.helpers.Ciudad;
 import pe.albatross.zelpers.helpers.Pais;
 import pe.albatross.zelpers.helpers.Persona;
@@ -199,5 +200,17 @@ public class JaneHelper_test_functions {
                     array.toString());
             System.out.println(array.toString());
         }
+    }
+
+    @Test
+    public void from_ciclo_test() {
+        CicloAcademico ciclo = new CicloAcademico();
+        ciclo.setCodigo("2022-10");
+        ciclo.setNombre("2022 Primero Ciclo");
+
+        ObjectNode node = JaneHelper
+                .from(ciclo)
+                .json();
+        System.out.println(node.toString());
     }
 }
