@@ -4,7 +4,7 @@
 
     <groupId>pe.albatross</groupId>
     <artifactId>zelpers</artifactId>
-    <version>0.3.13</version>
+    <version>0.3.14</version>
 
     <packaging>jar</packaging>
     
@@ -188,13 +188,6 @@
             <artifactId>hamcrest-core</artifactId>
             <version>1.3</version>
             <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
         </dependency>
       
     </dependencies>
