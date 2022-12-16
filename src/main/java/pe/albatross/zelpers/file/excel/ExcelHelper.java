@@ -117,6 +117,13 @@ public class ExcelHelper {
 
     }
 
+    public static void replaceBlank(Sheet sheet, int nroRow, int nroCell, CellStyle cellStyle) {
+        Cell cell = findCell(sheet, nroRow, nroCell);
+        
+        cell.setBlank();
+        cell.setCellStyle(cellStyle);
+    }
+
     public Cell findCell(int nroRow, int nroCell) {
         Row row = sheet.getRow(nroRow);
         if (row == null) {
