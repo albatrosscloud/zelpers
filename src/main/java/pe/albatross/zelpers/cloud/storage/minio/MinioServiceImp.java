@@ -75,6 +75,7 @@ public class MinioServiceImp implements StorageService {
         try {
 
             MinioClient minioClient = credentials.autenticate();
+            minioClient.ignoreCertCheck();
 
             minioClient.uploadObject(
                     UploadObjectArgs.builder()
@@ -145,7 +146,7 @@ public class MinioServiceImp implements StorageService {
     public InputStream getFile(String bucket, String path) {
         MinioClient minioClient = credentials.autenticate();
 
-        try ( InputStream stream = minioClient.getObject(
+        try (InputStream stream = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucket)
                         .object(path)
@@ -192,7 +193,7 @@ public class MinioServiceImp implements StorageService {
     public boolean doesExist(String bucket, String path) {
         MinioClient minioClient = credentials.autenticate();
 
-        try ( InputStream stream = minioClient.getObject(
+        try (InputStream stream = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucket)
                         .object(path)
