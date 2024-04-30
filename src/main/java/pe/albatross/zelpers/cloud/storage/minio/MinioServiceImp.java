@@ -160,11 +160,13 @@ public class MinioServiceImp implements StorageService {
     public InputStream getFile(String bucket, String path) {
         MinioClient minioClient = credentials.autenticate();
 
-        try (InputStream stream = minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(bucket)
-                        .object(path)
-                        .build())) {
+        try {
+
+            InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(path)
+                            .build());
 
             return stream;
 
@@ -240,7 +242,7 @@ public class MinioServiceImp implements StorageService {
                     PutObjectArgs.builder()
                             .bucket(bucket)
                             .object(directory)
-                            .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                            .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
                             .build());
 
             return true;
