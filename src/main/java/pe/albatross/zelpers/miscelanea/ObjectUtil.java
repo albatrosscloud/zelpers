@@ -55,6 +55,10 @@ public class ObjectUtil {
         }
 
         try {
+            if (metodo == null) {
+                return null;
+            }
+
             metodo.invoke(obj, objAttr);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -95,6 +99,10 @@ public class ObjectUtil {
         }
 
         try {
+            if (metodo == null) {
+                return null;
+            }
+            
             parent = metodo.invoke(obj);
 
         } catch (InvocationTargetException ex) {

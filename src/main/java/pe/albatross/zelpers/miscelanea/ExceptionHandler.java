@@ -1,5 +1,7 @@
 package pe.albatross.zelpers.miscelanea;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -11,9 +13,10 @@ import pe.albatross.zelpers.notify.Notificaciones;
 
 /**
  * EVITAR USAR
- * 
- * Preferentemente no usar try-catch en los controllers, porque los nuevos 
- * proyetos poseen el WebsiteAdvice y este los atrapará y responderá adecuandamente.
+ *
+ * Preferentemente no usar try-catch en los controllers, porque los nuevos
+ * proyetos poseen el WebsiteAdvice y este los atrapará y responderá
+ * adecuandamente.
  */
 @Deprecated
 public class ExceptionHandler {
@@ -29,7 +32,8 @@ public class ExceptionHandler {
         String methodName = Thread.currentThread().getStackTrace()[level].getMethodName();
         int lineNumber = Thread.currentThread().getStackTrace()[level].getLineNumber();
 
-        ex.printStackTrace();
+        printError(ex);
+
         logger.info(ex.getMessage());
         logger.info(className + "." + methodName + "():" + lineNumber);
     }
@@ -39,8 +43,6 @@ public class ExceptionHandler {
         json.setSuccess(false);
         json.setMessage(ex.getLocalizedMessage());
 
-        // momentaneamente
-        //ex.printStackTrace();
         showError(ex);
     }
 
@@ -50,8 +52,7 @@ public class ExceptionHandler {
         String msg = ex.getLocalizedMessage();
         notas.add(Notifica.ERROR, msg);
         redirect.addFlashAttribute(Notifica.NOTIFICACIONES, notas);
-        // momentaneamente
-        //ex.printStackTrace();
+
         showError(ex);
     }
 
@@ -59,8 +60,6 @@ public class ExceptionHandler {
 
         Notificaciones notas = Notificaciones.crearMsg(Notifica.ERROR, ex.getLocalizedMessage(), model);
 
-        // momentaneamente
-        //ex.printStackTrace();
         showError(ex);
     }
 
@@ -70,8 +69,8 @@ public class ExceptionHandler {
         json.setMessage(mensaje);
         logger.warn(mensaje);
         logger.warn(ex.getMessage());
-        // momentaneamente
-        ex.printStackTrace();
+
+        printError(ex);
     }
 
     public static void handleSpecial(RuntimeException ex, RedirectAttributes redirect, String mensaje) {
@@ -81,8 +80,8 @@ public class ExceptionHandler {
         redirect.addFlashAttribute(Notifica.NOTIFICACIONES, notas);
         logger.warn(mensaje);
         logger.warn(ex.getMessage());
-        // momentaneamente
-        ex.printStackTrace();
+
+        printError(ex);
     }
 
     public static void handleSpecial(RuntimeException ex, Model model, String mensaje) {
@@ -90,17 +89,16 @@ public class ExceptionHandler {
         Notificaciones notas = Notificaciones.crearMsg(Notifica.ERROR, mensaje, model);
         logger.warn(mensaje);
         logger.warn(ex.getMessage());
-        // momentaneamente
-        ex.printStackTrace();
+
+        printError(ex);
     }
 
     public static void handleException(Exception ex, JsonResponse json) {
 
         json.setSuccess(false);
         json.setMessage(MENSAJE_ERROR_GRAL);
-        // solo para este caso se necesita ver el error que se genera ya que se desconce su origen
-        logger.error(ex.getMessage());
-        ex.printStackTrace();
+
+        printError(ex);
     }
 
     public static void handleException(Exception ex, RedirectAttributes redirect) {
@@ -108,17 +106,13 @@ public class ExceptionHandler {
         Notificaciones notas = new Notificaciones();
         notas.add(Notifica.ERROR, MENSAJE_ERROR_GRAL);
         redirect.addFlashAttribute(Notifica.NOTIFICACIONES, notas);
-        // solo para este caso se necesita ver el error que se genera ya que se desconce su origen
-        logger.error(ex.getMessage());
-        ex.printStackTrace();
+
+        printError(ex);
     }
 
     public static void handleException(Exception ex, Model model) {
-
         Notificaciones notas = Notificaciones.crearMsg(Notifica.ERROR, MENSAJE_ERROR_GRAL, model);
-        // solo para este caso se necesita ver el error que se genera ya que se desconce su origen
-        logger.error(ex.getMessage());
-        ex.printStackTrace();
+        printError(ex);
     }
 
     public static String exceptionOnStringMedium(Exception e) {
@@ -135,5 +129,25 @@ public class ExceptionHandler {
             logger.debug("Error exceptionOnStringMedium", ex);
         }
         return error;
+    }
+
+    private static void printError(Exception ex) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        String[] lines = sw.toString().split("\n");
+
+        for (int i = 0; i < lines.length; i++) {
+            String linea = lines[i];
+            if (i == 0) {
+                logger.error(linea);
+            } else {
+                if (linea.contains("pe.edu.lamolina")) {
+                    logger.error(linea);
+                } else if (linea.contains("pe.albatross")) {
+                    logger.error(linea);
+                }
+            }
+        }
     }
 }

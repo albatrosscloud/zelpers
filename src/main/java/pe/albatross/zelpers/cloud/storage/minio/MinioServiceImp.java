@@ -1,18 +1,28 @@
 package pe.albatross.zelpers.cloud.storage.minio;
 
 import io.minio.GetObjectArgs;
+import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
+import io.minio.messages.Item;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
+import io.minio.Result;
 import io.minio.UploadObjectArgs;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
+import org.openstack4j.model.storage.object.SwiftObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Lazy;
@@ -36,7 +46,8 @@ public class MinioServiceImp implements StorageService {
     private static final String DELIMITER = File.separator;
 
     @Override
-    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName,
+            boolean publico, boolean replace) {
 
         if (!localDirectory.endsWith(DELIMITER)) {
             localDirectory += DELIMITER;
@@ -75,6 +86,7 @@ public class MinioServiceImp implements StorageService {
         try {
 
             MinioClient minioClient = credentials.autenticate();
+            minioClient.ignoreCertCheck();
 
             minioClient.uploadObject(
                     UploadObjectArgs.builder()
@@ -91,19 +103,22 @@ public class MinioServiceImp implements StorageService {
     }
 
     @Override
-    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+    public void uploadFileSync(String bucket, String bucketDirectory, String localDirectory, String fileName,
+            boolean publico) {
         this.uploadFile(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async
     @Override
-    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico) {
+    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName,
+            boolean publico) {
         this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, true);
     }
 
     @Async
     @Override
-    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName, boolean publico, boolean replace) {
+    public void uploadFile(String bucket, String bucketDirectory, String localDirectory, String fileName,
+            boolean publico, boolean replace) {
         this.uploadFileSync(bucket, bucketDirectory, localDirectory, fileName, publico, replace);
     }
 
@@ -145,11 +160,13 @@ public class MinioServiceImp implements StorageService {
     public InputStream getFile(String bucket, String path) {
         MinioClient minioClient = credentials.autenticate();
 
-        try ( InputStream stream = minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(bucket)
-                        .object(path)
-                        .build())) {
+        try {
+
+            InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(path)
+                            .build());
 
             return stream;
 
@@ -192,7 +209,7 @@ public class MinioServiceImp implements StorageService {
     public boolean doesExist(String bucket, String path) {
         MinioClient minioClient = credentials.autenticate();
 
-        try ( InputStream stream = minioClient.getObject(
+        try (InputStream stream = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucket)
                         .object(path)
@@ -225,7 +242,7 @@ public class MinioServiceImp implements StorageService {
                     PutObjectArgs.builder()
                             .bucket(bucket)
                             .object(directory)
-                            .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                            .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
                             .build());
 
             return true;
@@ -240,7 +257,99 @@ public class MinioServiceImp implements StorageService {
     @Override
     public Inode allFile(String bucket, String directory, boolean recursive) {
 
-        throw new PhobosException("Pendiente de implementar, revisar aws o swift como idea.");
+        if (directory.startsWith(DELIMITER)) {
+            directory = directory.substring(1);
+        }
+
+        if (!directory.endsWith(DELIMITER)) {
+            directory += DELIMITER;
+        }
+
+        if (directory.equals(DELIMITER)) {
+            directory = "";
+        }
+
+        try {
+
+            MinioClient minioClient = credentials.autenticate();
+
+            ListObjectsArgs listObjectsArgs = ListObjectsArgs.builder()
+                    .bucket(bucket)
+                    .prefix(directory)
+                    .delimiter(DELIMITER)
+                    .build();
+
+            Iterable<Result<Item>> results = minioClient.listObjects(listObjectsArgs);
+            Iterator<Result<Item>> iterator = results.iterator();
+
+            List<Inode> inodes = new ArrayList();
+
+            while (iterator.hasNext()) {
+                Item item = iterator.next().get();
+
+                if (item.isDir()) {
+
+                    Inode inode = this.getInodeDirectory(bucket, item.objectName());
+
+                    if (recursive) {
+                        inode = this.allFile(bucket, item.objectName(), recursive);
+                    }
+
+                    inodes.add(inode);
+
+                } else {
+                    inodes.add(this.getInodeFile(bucket, item));
+                }
+            }
+
+            Inode inode = this.getInodeDirectory(bucket, directory);
+            inode.setItems(inodes);
+            return inode;
+
+        } catch (Exception e) {
+            log.error("Error al listar el bucket/directorio", e);
+            throw new PhobosException("Error al listar el directorio en minio.");
+        }
+
+    }
+
+    private Inode getInodeDirectory(String bucket, String pathDirectory) {
+
+        Inode inode = new Inode();
+        inode.setType(Inode.Type.DIRECTORY);
+        inode.setPath(pathDirectory);
+        inode.setBucket(bucket);
+
+        File file = new File(pathDirectory);
+        inode.setTitle(file.getName());
+        inode.setFileName(file.getName());
+
+        if (!StringUtils.isEmpty(file.getParent())) {
+            inode.setParent(this.getInodeDirectory(bucket, file.getParent()));
+        }
+
+        return inode;
+    }
+
+    private Inode getInodeFile(String bucket, Item item) {
+
+        String path = item.objectName();
+
+        Inode inode = new Inode();
+        inode.setType(Inode.Type.FILE);
+        inode.setPath(path);
+        inode.setBucket(bucket);
+        inode.setSize(item.size());
+
+        inode.setTitle(FilenameUtils.getBaseName(path));
+        inode.setFileName(FilenameUtils.getName(path));
+        inode.setExtension(FilenameUtils.getExtension(path));
+
+        String url = String.format(credentials.getUrlBase() + "%s/%s", bucket, path);
+
+        inode.setUrl(url);
+
+        return inode;
     }
 
 }
