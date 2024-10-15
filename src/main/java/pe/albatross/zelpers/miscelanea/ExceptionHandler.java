@@ -142,9 +142,27 @@ public class ExceptionHandler {
             if (i == 0) {
                 logger.error(linea);
             } else {
-                if (linea.contains("pe.edu.lamolina")) {
+                if (linea.contains("pe.edu.lamolina.")) {
                     logger.error(linea);
-                } else if (linea.contains("pe.albatross")) {
+                } else if (linea.contains("p.edu.lamolina.")) {
+                    logger.error(linea);
+                } else if (linea.contains("p.e.lamolina.")) {
+                    logger.error(linea);
+                } else if (linea.contains("p.e.l.")) {
+                    logger.error(linea);
+                } else if (linea.contains("edu.pe.lamolina.")) {
+                    logger.error(linea);
+                } else if (linea.contains("e.pe.lamolina.")) {
+                    logger.error(linea);
+                } else if (linea.contains("e.p.lamolina.")) {
+                    logger.error(linea);
+                } else if (linea.contains("e.p.l.")) {
+                    logger.error(linea);
+                } else if (linea.contains("pe.albatross.")) {
+                    logger.error(linea);
+                } else if (linea.contains("p.albatross.")) {
+                    logger.error(linea);
+                } else if (linea.contains("p.a.")) {
                     logger.error(linea);
                 }
             }
