@@ -32,4 +32,10 @@ public interface StorageService {
     Inode allFile(String bucket, String directory, boolean recursive);
 
     boolean createDirectory(String bucket, String directory);
+
+    void createBucket(String bucket);
+
+    void makeFilePublic(String bucket, String objectPath);
+
+    String generateTemporaryAccessUrl(String bucket, String objectPath, int expirationInSeconds);
 }
