@@ -407,11 +407,11 @@ public class MinioServiceImp implements StorageService {
                 return;
             }
 
-            statements.add(Map.of(
-                    "Effect", "Allow",
-                    "Principal", "*",
-                    "Action", "s3:GetObject",
-                    "Resource", resourceArn));
+            Map<String, Object> statement = new HashMap<>();
+            statement.put("Effect", "Allow");
+            statement.put("Principal", "*");
+            statement.put("Action", "s3:GetObject");
+            statement.put("Resource", resourceArn);
 
             policy.put("Version", "2012-10-17");
             policy.put("Statement", statements);
