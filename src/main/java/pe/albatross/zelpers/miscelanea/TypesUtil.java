@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -428,12 +429,10 @@ public class TypesUtil {
     }
 
     public static void delay(long mseg) {
-        long t1 = System.currentTimeMillis();
-        for (;;) {
-            long t2 = System.currentTimeMillis();
-            if (t2 - t1 > mseg) {
-                break;
-            }
+        try {
+            TimeUnit.MILLISECONDS.sleep(mseg);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
