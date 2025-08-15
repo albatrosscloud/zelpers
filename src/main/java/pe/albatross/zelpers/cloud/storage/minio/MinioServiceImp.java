@@ -1,33 +1,43 @@
 package pe.albatross.zelpers.cloud.storage.minio;
 
-import io.minio.GetObjectArgs;
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.messages.Item;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
-import io.minio.Result;
-import io.minio.UploadObjectArgs;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
-import org.openstack4j.model.storage.object.SwiftObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.minio.BucketExistsArgs;
+import io.minio.GetBucketPolicyArgs;
+import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.ListObjectsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.Result;
+import io.minio.SetBucketPolicyArgs;
+import io.minio.UploadObjectArgs;
+import io.minio.http.Method;
+import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 import pe.albatross.zelpers.cloud.credentials.MinioCredentials;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.model.Inode;
@@ -352,4 +362,89 @@ public class MinioServiceImp implements StorageService {
         return inode;
     }
 
+@Override
+    public void createBucket(String bucket) {
+        try {
+            MinioClient minioClient = credentials.autenticate();
+
+            boolean exists = minioClient.bucketExists(
+                    BucketExistsArgs.builder().bucket(bucket).build());
+
+            if (!exists) {
+                minioClient.makeBucket(
+                        MakeBucketArgs.builder().bucket(bucket).build());
+            } else {
+                log.error("El bucket '{}' ya existe.", bucket);
+                throw new PhobosException(String.format("El bucket '%s' ya existe.", bucket));
+            }
+        } catch (Exception e) {
+            log.error("Error al crear el bucket '{}'", bucket, e);
+            throw new PhobosException("No se pudo crear el bucket en MinIO.");
+        }
+    }
+
+    @Override
+    public void makeFilePublic(String bucket, String objectPath) {
+        try {
+            MinioClient minioClient = credentials.autenticate();
+            ObjectMapper mapper = new ObjectMapper();
+
+            String currentPolicy = minioClient.getBucketPolicy(GetBucketPolicyArgs.builder().bucket(bucket).build());
+            Map<String, Object> policy = currentPolicy.isEmpty() ? new HashMap<>()
+                    : mapper.readValue(currentPolicy, Map.class);
+            List<Map<String, Object>> statements = (List<Map<String, Object>>) policy.getOrDefault("Statement",
+                    new ArrayList<>());
+
+            String resourceArn = "arn:aws:s3:::" + bucket + "/" + objectPath;
+            boolean alreadyExists = statements.stream().anyMatch(statement -> {
+                Object resource = statement.get("Resource");
+                return resource instanceof String ? resource.equals(resourceArn)
+                        : resource instanceof List && ((List<?>) resource).contains(resourceArn);
+            });
+
+            if (alreadyExists) {
+                log.info("El objeto '{}' ya es público.", objectPath);
+                return;
+            }
+
+            Map<String, Object> newStatement = new HashMap<>();
+            newStatement.put("Effect", "Allow");
+            newStatement.put("Principal", "*");
+            newStatement.put("Action", "s3:GetObject");
+            newStatement.put("Resource", resourceArn);
+            
+            statements.add(newStatement);
+
+            policy.put("Version", "2012-10-17");
+            policy.put("Statement", statements);
+
+            minioClient.setBucketPolicy(SetBucketPolicyArgs.builder()
+                    .bucket(bucket)
+                    .config(mapper.writeValueAsString(policy))
+                    .build());
+
+        } catch (Exception e) {
+            log.error("No se pudo hacer público el archivo '{}'", objectPath, e);
+            throw new PhobosException("Error al hacer público el archivo.");
+        }
+    }
+
+    @Override
+    public String generateTemporaryAccessUrl(String bucket, String objectPath, int expirationInSeconds) {
+        try {
+            MinioClient minioClient = credentials.autenticate();
+
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET) 
+                            .bucket(bucket)
+                            .object(objectPath)
+                            .expiry(expirationInSeconds) 
+                            .build());
+
+        } catch (Exception e) {
+            log.error("No se pudo generar URL temporal para '{}'", objectPath, e);
+            throw new PhobosException("Error al generar acceso temporal al archivo.");
+        }
+    }
 }

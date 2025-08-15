@@ -296,4 +296,19 @@ public class S3ServiceImp implements StorageService {
         return inode;
     }
 
+    @Override
+    public void createBucket(String bucket) {
+        throw new UnsupportedOperationException("Unimplemented method 'createBucket'");
+    }
+
+    @Override
+    public void makeFilePublic(String bucket, String objectPath) {
+        throw new UnsupportedOperationException("Unimplemented method 'makeFilePublic'");
+    }
+
+    @Override
+    public String generateTemporaryAccessUrl(String bucket, String objectPath, int expirationInSeconds) {
+        throw new UnsupportedOperationException("Unimplemented method 'generateTemporaryAccessUrl'");
+    }
+
 }
